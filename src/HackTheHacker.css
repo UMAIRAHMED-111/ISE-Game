@@ -1,0 +1,836 @@
+.hack-the-hacker {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #0f172a; /* Dark background */
+  color: #fff;
+}
+.main-content {
+  flex: 1;
+  padding: 16px;
+}
+.container {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 32px 0;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.exit-link {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #9ca3af;
+  text-decoration: none;
+  gap: 8px;
+}
+.exit-link:hover {
+  color: #3b82f6;
+}
+.progress-text {
+  font-size: 14px;
+  color: #9ca3af;
+}
+.progress-label {
+  font-weight: 500;
+}
+.progress-bar {
+  height: 8px;
+  background-color: #1f2937;
+  margin-bottom: 32px;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+.challenge-card {
+  background-color: #1e293b;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #374151;
+}
+.card-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+}
+.difficulty-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-size: 12px;
+}
+.difficulty-easy {
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+}
+.difficulty-medium {
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.5);
+}
+.difficulty-hard {
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+}
+.difficulty-default {
+  color: #6b7280;
+  border: 1px solid rgba(107, 114, 128, 0.5);
+}
+.card-description {
+  padding: 16px 16px 8px;
+}
+.card-description p {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+}
+.card-content {
+  padding: 8px 16px 16px;
+}
+.challenge-content {
+  margin-top: 16px;
+}
+.terminal-container {
+  border: 1px solid #374151;
+  background-color: #111827;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  overflow: hidden;
+}
+.terminal-header {
+  background-color: #1f2937;
+  padding: 8px;
+  font-size: 12px;
+  color: #9ca3af;
+  border-bottom: 1px solid #374151;
+}
+.terminal-body {
+  height: 256px;
+  overflow-y: auto;
+  padding: 8px;
+}
+.terminal-text {
+  margin-bottom: 8px;
+  color: #9ca3af;
+}
+.terminal-command {
+  color: #22c55e;
+  padding: 2px 0;
+}
+.terminal-response {
+  color: #d1d5db;
+  padding: 2px 0;
+  white-space: pre-wrap;
+}
+.terminal-input-container {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+.terminal-prompt {
+  margin-right: 8px;
+  color: #22c55e;
+}
+.terminal-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #fff;
+  padding: 0;
+  outline: none;
+  font-family: monospace;
+}
+.terminal-input:focus {
+  outline: none;
+}
+.terminal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background-color: #1f2937;
+  border-top: 1px solid #374151;
+}
+.terminal-hint {
+  font-size: 12px;
+  color: #9ca3af;
+}
+.code {
+  background-color: #111827;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: #22c55e;
+}
+.submit-final-btn {
+  background-color: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+.submit-final-btn:hover {
+  background-color: #2563eb;
+}
+.submit-final-btn:disabled {
+  background-color: #1f2937;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+.challenge-box {
+  border: 1px solid #374151;
+  background-color: #111827;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.challenge-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.challenge-label {
+  font-weight: 500;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.challenge-text {
+  font-family: monospace;
+  white-space: pre-wrap;
+  color: #9ca3af;
+  margin-bottom: 8px;
+  overflow-x: auto;
+}
+.challenge-info {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #374151;
+}
+.info-label {
+  color: #9ca3af;
+  font-weight: 500;
+}
+.separator {
+  height: 1px;
+  background-color: #374151;
+  margin: 8px 0;
+}
+.input-section {
+  margin-top: 16px;
+}
+.input-label {
+  font-size: 14px;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.input-container {
+  display: flex;
+  gap: 8px;
+}
+.challenge-input {
+  flex: 1;
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+}
+.challenge-input:focus {
+  border-color: #3b82f6;
+}
+.submit-btn {
+  background-color: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.submit-btn:hover {
+  background-color: #2563eb;
+}
+.submit-btn:disabled {
+  background-color: #1f2937;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+.answer-section {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border: 1px solid #374151;
+}
+.answer-label {
+  font-size: 14px;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.answer-input-container {
+  display: flex;
+  gap: 8px;
+}
+.answer-input {
+  flex: 1;
+  background-color: #111827;
+  border: 1px solid #374151;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  outline: none;
+}
+.answer-input:focus {
+  border-color: #3b82f6;
+}
+.result-section {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #1f2937;
+  border-radius: 8px;
+  border: 1px solid #374151;
+}
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.result-icon {
+  width: 24px;
+  height: 24px;
+}
+.result-icon.correct {
+  color: #22c55e;
+}
+.result-icon.incorrect {
+  color: #ef4444;
+}
+.result-text {
+  font-size: 18px;
+  font-weight: 500;
+}
+.result-text.correct {
+  color: #22c55e;
+}
+.result-text.incorrect {
+  color: #ef4444;
+}
+.explanation-section {
+  padding-top: 16px;
+  border-top: 1px solid #374151;
+}
+.explanation-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d1d5db;
+  margin-bottom: 8px;
+}
+.explanation-text {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.5;
+}
+.hint-section {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 8px;
+}
+.hint-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.hint-icon {
+  color: #eab308;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.hint-text {
+  font-size: 14px;
+  color: #d1d5db;
+  line-height: 1.5;
+}
+.card-footer {
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #374151;
+}
+.previous-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: transparent;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.previous-btn:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+.previous-btn:disabled {
+  border-color: #1f2937;
+  color: #4b5563;
+  cursor: not-allowed;
+}
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+.hint-btn {
+  background-color: transparent;
+  border: 1px solid #eab308;
+  color: #eab308;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.hint-btn:hover {
+  background-color: rgba(234, 179, 8, 0.1);
+}
+.reset-btn {
+  background-color: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.reset-btn:hover {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.answered-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.next-btn {
+  background-color: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.next-btn:hover {
+  background-color: #2563eb;
+}
+.finish-btn {
+  background-color: transparent;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.finish-btn:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+.challenge-error {
+  padding: 16px;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #ef4444;
+  margin-top: 16px;
+}
+.quiz-summary {
+  background-color: #1e293b;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.summary-title {
+  padding: 16px;
+  border-bottom: 1px solid #374151;
+  margin: 0;
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+.summary-content {
+  padding: 16px;
+}
+.summary-score {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.score-text {
+  font-size: 18px;
+  color: #d1d5db;
+}
+.correct-score {
+  color: #22c55e;
+  font-weight: bold;
+}
+.total-challenges {
+  font-weight: bold;
+}
+.challenge-list {
+  border: 1px solid #374151;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.challenge-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #374151;
+}
+.challenge-item:last-child {
+  border-bottom: none;
+}
+.challenge-index {
+  width: 24px;
+  text-align: right;
+  margin-right: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+.challenge-name {
+  flex: 1;
+  color: #d1d5db;
+}
+.challenge-status {
+  margin-left: 12px;
+}
+.status-icon {
+  width: 20px;
+  height: 20px;
+}
+.status-icon.correct {
+  color: #22c55e;
+}
+.status-icon.incorrect {
+  color: #ef4444;
+}
+.summary-actions {
+  padding: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  border-top: 1px solid #374151;
+}
+.summary-btn {
+  background-color: #3b82f6;
+  border: none;
+  color: #fff;
+  padding: 8px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  min-width: 120px;
+}
+.summary-btn:hover {
+  background-color: #2563eb;
+}
+/* Add these styles to your HackTheHacker.css file */
+
+/* Better button styling */
+.hint-btn, .reset-btn, .submit-btn, .submit-final-btn, .next-btn, .previous-btn, .finish-btn, .summary-btn {
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.hint-btn {
+  background-color: #f0ad4e;
+  color: #fff;
+}
+
+.hint-btn:hover {
+  background-color: #ec971f;
+}
+
+.reset-btn {
+  background-color: #d9534f;
+  color: #fff;
+}
+
+.reset-btn:hover {
+  background-color: #c9302c;
+}
+
+.submit-btn, .submit-final-btn {
+  background-color: #5bc0de;
+  color: #fff;
+}
+
+.submit-btn:hover, .submit-final-btn:hover {
+  background-color: #31b0d5;
+}
+
+.next-btn {
+  background-color: #5cb85c;
+  color: #fff;
+}
+
+.next-btn:hover {
+  background-color: #449d44;
+}
+
+.previous-btn {
+  background-color: #6c757d;
+  color: #fff;
+}
+
+.previous-btn:hover {
+  background-color: #5a6268;
+}
+
+.finish-btn {
+  background-color: #0275d8;
+  color: #fff;
+}
+
+.finish-btn:hover {
+  background-color: #025aa5;
+}
+
+/* Button positioning */
+.card-footer {
+  display: flex;
+  padding: 15px;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.center-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.answered-buttons {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.terminal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 0 0 4px 4px;
+}
+
+/* Input styling for challenge answers */
+.answer-section {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.answer-label {
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.answer-input-container {
+  display: flex;
+  gap: 10px;
+}
+
+.answer-input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+/* Disabled button state */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive styles to add at the end of your existing CSS */
+
+/* Make the layout responsive while preserving all existing styles */
+@media (max-width: 768px) {
+  .container {
+    width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .card-footer {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  
+  .answered-buttons {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  /* Improve button containers */
+  .center-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .footer-actions {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .input-container,
+  .answer-input-container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .submit-btn,
+  .answer-input {
+    width: 100%;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+  
+  .hint-btn,
+  .reset-btn,
+  .next-btn,
+  .previous-btn,
+  .finish-btn {
+    width: 100%;
+  }
+  
+  /* Make buttons more touch-friendly on mobile */
+  .hint-btn, .reset-btn, .submit-btn, .submit-final-btn, 
+  .next-btn, .previous-btn, .finish-btn, .summary-btn {
+    padding: 12px 16px;
+    min-height: 48px; /* Better touch target */
+  }
+  
+  /* Fix alignment in card footer */
+  .card-footer {
+    padding: 12px;
+  }
+  
+  /* Improve spacing for answered buttons */
+  .answered-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  /* Terminal footer improvements */
+  .terminal-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .terminal-hint {
+    width: 100%;
+  }
+}
+
+/* Add this to ensure buttons maintain consistent width on all screens */
+@media (min-width: 769px) {
+  /* Only apply to desktop to not affect mobile improvements */
+  .action-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .hint-btn, .reset-btn, .submit-btn, .submit-final-btn, 
+  .next-btn, .previous-btn, .finish-btn, .summary-btn {
+    min-width: 120px;
+    max-width: fit-content;
+  }
+}
+
+/* Ensure content doesn't overflow on small screens */
+.terminal-body {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.challenge-text {
+  max-width: 100%;
+  overflow-x: auto;
+}

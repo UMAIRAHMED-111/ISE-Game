@@ -1,131 +1,161 @@
-# HackAware: Gamified Cybersecurity Learning
+# HackAware: Interactive Security Education Game
 
-Welcome to **HackAware** – an interactive platform designed to **empower users** with cybersecurity awareness and skills through engaging games, challenges, and resources!  
-
-🚀 Built for the **Innovatex Hackathon** by **Team Paradox Frontier** *(Vaishnavi Singh, Ayush Karan, Ashish Raj).*  
+HackAware is an interactive web application designed to raise cybersecurity awareness through engaging games, challenges, and simulations. Built with React, it provides a safe environment for users to learn about online threats, password security, phishing, and more—without ever putting real data at risk.
 
 ---
 
-## 🚀 About HackAware  
-**HackAware** transforms cybersecurity education into an **immersive, gamified experience**. Users can explore **interactive challenges, security tools, and real-world problem-solving exercises** to develop practical cybersecurity skills while having fun!
+## 🚀 Features
+
+- **Interactive Challenges:**  
+  - Cipher Quest  
+  - Security Quiz  
+  - Cyber Escape Room  
+  - Password Challenge  
+  - Attack Simulator  
+  - Hack the Hacker
+
+- **Simulated Login/Sign-Up:**  
+  Demonstrates the risks of sharing credentials on untrusted sites, with clear educational alerts.
+
+- **Modern UI/UX:**  
+  - Responsive design  
+  - Animated effects  
+  - Accessible navigation
+
+- **Educational Focus:**  
+  - Alerts and modals explain security concepts  
+  - Encourages best practices for online safety
 
 ---
 
-## 🔑 Key Features  
-- **🧠 Security Quiz** – Test your knowledge of social engineering tactics.  
-- **🔐 Cyber Escape Room** – Solve puzzles to escape a hacker’s trap.  
-- **🔑 Master the Passwords** – Learn how to create and evaluate secure passwords.  
-- **⚡ Attack Simulator** – Respond to simulated cyber threats in real time.  
-- **🕵️ Hack The Hacker** – Analyze vulnerabilities and decrypt messages.  
-- **📚 Security Resources** – Access guides and tools to improve your cybersecurity knowledge.  
+## 🖼️ Screenshots
+
+![HackAware Home](./src/assets/HackWare.png)  
+*Logo used in navigation bar*
 
 ---
 
-## 🎯 Objectives  
-✔ **Educate users** about cybersecurity threats and solutions.  
-✔ **Make learning interactive** through engaging challenges.  
-✔ **Provide real-world insights** into online security best practices.  
+## 🛠️ Tech Stack
+
+- **Frontend:** React, React Router
+- **Styling:** CSS (custom, responsive, modern)
+- **Assets:** Custom icons and images in `/src/assets/`
 
 ---
 
-## 🛠️ Tech Stack  
-- **Frontend**: React.js for a dynamic and responsive UI.  
-- **Styling**: Tailwind CSS for modern and consistent design.  
-- **Routing**: React Router for seamless navigation.  
-- **Local Storage**: Used to save user progress.  
-- **Animations**: Canvas Confetti for interactive user engagement.  
+## 📁 Project Structure
 
----
-
-## 📦 Installation Guide  
-
-### Prerequisites:  
-- Install **Node.js** on your system.  
-
-### Steps to Set Up:  
-```bash
-# Clone the repository
-git clone https://github.com/your-repo/HackAware.git
-cd HackAware
-
-# Install dependencies
-npm install
-
-# Start the development server
-npm start
-
-# Open the application in your browser
-http://localhost:3000
+```
+src/
+│
+├── assets/                # Images and logo (HackWare.png, etc.)
+├── App.jsx                # Main application component
+├── Home.jsx / Home.css    # Landing page and styles
+├── Challenges.jsx         # Challenge selection and routing
+├── SecurityQuiz.jsx       # Security quiz game
+├── CyberEscapeRoom.jsx    # Escape room game
+├── PasswordChallenge.jsx  # Password strength game
+├── AttackSimulator.jsx    # Phishing/attack simulation
+├── HackTheHacker.jsx      # "Hack the Hacker" game
+├── HackTheHackerComplete.jsx # End screen for Hack the Hacker
+├── LoginModal.jsx         # Simulated login modal
+├── SignUpModal.jsx        # Simulated sign-up modal
+└── index.js               # Entry point
 ```
 
 ---
 
-## 🌟 How to Use  
-1. Open **HackAware** and explore the available games and challenges.  
-2. Select a challenge and follow the **on-screen instructions**.  
-3. **Complete challenges** to improve your cybersecurity skills.  
-4. Learn from mistakes with **hints and explanations** after each challenge.  
-5. Explore the **Security Resources** section for additional learning materials.  
-6. Continue your journey to become cyber-aware and practice **safe online habits**!  
+## 🏁 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v16+ recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+
+### Installation
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/your-username/hackaware.git
+   cd hackaware
+   ```
+
+2. **Install dependencies:**
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Start the development server:**
+   ```sh
+   npm start
+   # or
+   yarn start
+   ```
+
+4. **Open in your browser:**  
+   Visit [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🚀 Future Roadmap  
-We aim to expand **HackAware** with:  
-- 🔹 **New cybersecurity challenges** based on evolving threats.  
-- 🔹 **More interactive security games** with real-world scenarios.  
-- 🔹 **Mobile-friendly version** for seamless learning on the go.  
-- 🔹 **Enhanced user progress tracking** to measure skill improvement.  
+## 🧩 How It Works
+
+- **Navigation:**  
+  The top navbar features the HackWare logo and links to Home, Challenges, Login, and Sign Up.
+
+- **Games & Challenges:**  
+  Each challenge is accessible via the "Challenges" page or directly via routes.
+
+- **Simulated Credentials:**  
+  Login and Sign Up modals simulate credential entry and display educational alerts—no real data is stored or transmitted.
+
+- **Alerts:**  
+  After simulated actions, users receive clear, informative messages about online safety and best practices.
 
 ---
 
-## 📖 Contributing  
-We welcome contributions! Follow these steps to contribute:  
+## 📝 Customization
 
-```bash
-# Fork the repository
-git clone https://github.com/your-repo/HackAware.git
+- **Add new games:**  
+  Create a new component in `src/`, add a route in `App.jsx`, and link it in the navigation or challenges grid.
 
-# Create a new branch for your feature
-git checkout -b feature-name
+- **Change logo:**  
+  Replace `src/assets/HackWare.png` with your own image and update the import in `App.jsx`.
 
-# Make your changes and commit them
-git commit -m "Add new feature"
-
-# Push to your fork
-git push origin feature-name
-
-# Open a pull request
-```
-Check the Issues section for open feature suggestions or bug fixes. Once your pull request is reviewed and approved, it will be merged into the main project.
+- **Styling:**  
+  Modify `Home.css` and other CSS files for custom themes or layouts.
 
 ---
 
-## ❓ Need Help?  
+## 🤝 Contributing
 
-If you encounter any issues while setting up or using **HackAware**, feel free to:  
-- Open an issue on the [GitHub Repository](https://github.com/your-repo/HackAware/issues).  
-- Reach out to **Team Paradox Frontier** through the project discussion section.  
-- Check the **FAQs and Troubleshooting Guide** in the repository.  
-
-For any urgent concerns, you can also contact the team via the provided discussion forums.  
+Contributions are welcome!  
+- Fork the repo  
+- Create a feature branch  
+- Submit a pull request
 
 ---
 
-## 🛡️ License  
+## ⚠️ Disclaimer
 
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.  
-
----
-
-## 🤝 Acknowledgements  
-
-A huge thank you to:  
-- **[Canvas Confetti](https://www.npmjs.com/package/canvas-confetti)** for adding celebratory animations.  
-- The **cybersecurity community** for inspiring this initiative.  
-- **Team Paradox Frontier** *(Vaishnavi Singh, Ayush Karan, Ashish Raj)* for building this during the **Innovatex Hackathon**.  
-- **All contributors and users** for supporting this project!  
+**This project is for educational and awareness purposes only.**  
+No real credentials or sensitive data are collected or transmitted. All simulations are safe and intended to teach users about cybersecurity risks and best practices.
 
 ---
 
-🚀 **Join HackAware today and level up your cybersecurity skills!** 🔒🎮  
+## 📄 License
+
+[MIT License](LICENSE)
+
+---
+
+## 👨‍💻 Authors
+
+- [Umair Ahmed](https://github.com/UMAAIRAHMED-111)
+- [Contributors](https://github.com/your-username/hackaware/graphs/contributors)
+
+---
+
+
+---

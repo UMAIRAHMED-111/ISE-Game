@@ -1,0 +1,189 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+/* ===========================
+   Container
+=========================== */
+.cipher-quest-container {
+  min-height: 100vh;
+  background-color: #0e0e0e;
+  color: #e0e0e0;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+/* ===========================
+   Game Card
+=========================== */
+.card {
+  max-width: 750px;
+  width: 100%;
+  background-color: #1b1b1b;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 0 20px rgba(50, 210, 127, 0.2);
+  animation: slideUp 0.5s ease forwards;
+  opacity: 1; /* Ensure persistent visibility */
+}
+
+.card h2 {
+  color: #32d27f;
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+/* ===========================
+   Text Content
+=========================== */
+.scenario {
+  color: #ccc;
+  font-size: 16px;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.question {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* ===========================
+   Input Field
+=========================== */
+.input-field {
+  padding: 12px;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 16px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+/* ===========================
+   Options
+=========================== */
+.options {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.option {
+  background-color: #232323;
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option:hover {
+  border-color: #32d27f;
+  background-color: #282828;
+}
+
+.option.selected {
+  background-color: rgba(50, 210, 127, 0.15);
+  border-color: #32d27f;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+.submit-btn,
+.next-btn {
+  background-color: #32d27f;
+  color: #0c2f27;
+  font-weight: 600;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(50, 210, 127, 0.3);
+}
+
+.submit-btn:hover,
+.next-btn:hover {
+  background-color: #29b86f;
+  transform: scale(1.05);
+}
+
+/* ===========================
+   Feedback
+=========================== */
+.feedback {
+  font-size: 18px;
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+.correct {
+  color: #32d27f;
+}
+
+.incorrect {
+  color: #ff4d4d;
+}
+
+.explanation {
+  font-size: 15px;
+  color: #ccc;
+  margin-top: 12px;
+}
+
+/* ===========================
+   Animations
+=========================== */
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.summary-card {
+  background: rgba(50, 210, 127, 0.07);
+  border: 1px solid rgba(50, 210, 127, 0.2);
+  box-shadow: 0 0 20px rgba(50, 210, 127, 0.35);
+  text-align: center;
+  animation: slideUp 0.6s ease forwards;
+}
+
+.summary-score {
+  font-size: 22px;
+  color: #e0e0e0;
+  margin: 16px 0;
+}
+
+.emoji-feedback {
+  font-size: 20px;
+  margin-bottom: 24px;
+  color: #cfcfcf;
+}
+
+/* Optional: fade-in for future enhancements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease forwards;
+}
