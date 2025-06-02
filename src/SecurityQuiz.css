@@ -276,3 +276,267 @@
     opacity: 1;
   }
 }
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #32d27f;
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+  text-align: center;
+  padding: 20px;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.error-container button {
+  background-color: #32d27f;
+  color: #0c2f27;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.error-container button:hover {
+  background-color: #29b86f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(50, 210, 127, 0.2);
+}
+
+.questions-column {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin-header h1 {
+  color: #32d27f;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.question-card {
+  background-color: #1b1b1b;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #2a2a2a;
+  transition: transform 0.2s ease;
+}
+
+.question-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.new-question-card {
+  background-color: #1b1b1b;
+  border: 2px dashed #32d27f;
+  margin-bottom: 20px;
+}
+
+.question-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.question-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #32d27f;
+}
+
+.question-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.edit-btn,
+.delete-btn,
+.cancel-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.edit-btn {
+  background-color: #4a90e2;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #357abd;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+.cancel-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background-color: #5a6268;
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-input,
+.edit-textarea,
+.edit-select {
+  padding: 10px;
+  border: 1px solid #2a2a2a;
+  border-radius: 6px;
+  background-color: #232323;
+  color: #e0e0e0;
+  font-size: 1rem;
+}
+
+.edit-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.save-btn {
+  background-color: #32d27f;
+  color: #0c2f27;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.save-btn:hover {
+  background-color: #29b86f;
+  transform: translateY(-2px);
+}
+
+.new-question-btn {
+  background-color: #32d27f;
+  color: #0c2f27;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-question-btn:hover {
+  background-color: #29b86f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(50, 210, 127, 0.2);
+}
+
+.options-preview {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.option-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #232323;
+  border: 1px solid #2a2a2a;
+  border-radius: 4px;
+  min-width: 200px;
+}
+
+.option-label {
+  font-weight: bold;
+  color: #32d27f;
+}
+
+.option-text {
+  flex: 1;
+  color: #e0e0e0;
+}
+
+.correct-badge {
+  background-color: #32d27f;
+  color: #0c2f27;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  font-weight: 600;
+}

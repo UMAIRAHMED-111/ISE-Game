@@ -1,238 +1,330 @@
-import React, { useState } from "react";
-import Confetti from "react-confetti";
+import React, { useState, useEffect } from "react";
 import "./CipherQuest.css";
-
-const levels = [
-  {
-    level: 1,
-    title: "Caesar Cipher Challenge",
-    scenario:
-      'Alice finds her grandfather\'s old safe, locked with a 4-letter code. She remembers he loved the Caesar cipher. On the safe is the note: "FDVH".',
-    question: "Decode the note:",
-    type: "input",
-    correctAnswer: "CASE",
-    feedback:
-      "The Caesar cipher shifts letters. Shifting F-D-V-H back by 3 gives C-A-S-E.",
-  },
-  {
-    level: 2,
-    title: "One-Time Pad Fix",
-    scenario:
-      "Alice and Bob are reusing one-time pad keys across messages. Select steps to fix this.",
-    question: "Select all correct steps in order:",
-    type: "multi-choice",
-    options: [
-      "Use each key only once and discard it after use.",
-      "Switch to a Caesar cipher with a fixed shift.",
-      "Generate a long pseudo-random key stream from a shared seed.",
-      "Keep reusing the key but add a salt to each message.",
-      "Switch to symmetric encryption with a secure key exchange mechanism.",
-    ],
-    correctAnswer: [0, 4],
-    feedback:
-      "Correct! Step 1 ensures uniqueness, Step 5 provides a scalable fix.",
-  },
-  {
-    level: 3,
-    title: "Digital Signature Check",
-    scenario:
-      'Bob receives an email from "Alice" asking for data. Validate the signature with these steps.',
-    question: "Arrange steps in correct order:",
-    type: "ordered-choice",
-    options: [
-      "Use Alice’s public key to decrypt the signed hash",
-      "Hash the message using the agreed-upon algorithm",
-      "Compare the hash from signature with the hash of the message",
-      "Encrypt the message using Bob’s private key",
-      "Replace the hash algorithm with MD5 instead",
-    ],
-    correctAnswer: [0, 1, 2],
-    feedback:
-      "Correct! These are the steps to verify digital signatures. The rest are either irrelevant or insecure.",
-  },
-  {
-    level: 4,
-    title: "Key Management Mistake",
-    scenario:
-      "Customer data was encrypted using AES, but keys were left in plaintext.",
-    question: "Pick correct steps to improve key handling:",
-    type: "multi-choice",
-    options: [
-      "Move encryption keys to a secure hardware module (HSM).",
-      "Encrypt the encryption key using Base64 encoding.",
-      "Use access controls to restrict key file access to specific services.",
-      "Implement key rotation policies.",
-      "Store the keys in a hidden folder on the same server.",
-    ],
-    correctAnswer: [0, 2, 3],
-    feedback:
-      "Storing keys securely, limiting access, and rotating keys strengthens protection.",
-  },
-  {
-    level: 5,
-    title: "RSA Broadcast Flaw",
-    scenario:
-      "Same plaintext sent with RSA (e=3) to 3 recipients. An attacker decrypts.",
-    question: "Pick all correct steps to fix this vulnerability:",
-    type: "multi-choice",
-    options: [
-      "Use message padding (e.g., OAEP) before encryption.",
-      "Decrease the public exponent to 1.",
-      "Use the same modulus across all users.",
-      "Randomize the plaintext before encryption.",
-      "Switch to AES for broadcast messaging.",
-    ],
-    correctAnswer: [0, 3, 4],
-    feedback:
-      "Padding, randomness, and symmetric encryption prevent this RSA flaw.",
-  },
-];
+import { db } from './firebase/config';
+import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 
 function CipherQuest() {
-  const [currentLevel, setCurrentLevel] = useState(0);
-  const [selected, setSelected] = useState([]);
-  const [inputAnswer, setInputAnswer] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [showSummary, setShowSummary] = useState(false);
-  const [correctCount, setCorrectCount] = useState(0);
+  const [levels, setLevels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingLevel, setEditingLevel] = useState(null);
+  const [isNewLevel, setIsNewLevel] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    scenario: '',
+    question: '',
+    type: '',
+    correctAnswer: '',
+    feedback: '',
+    options: []
+  });
 
-  const current = levels[currentLevel];
+  useEffect(() => {
+    fetchLevels();
+  }, []);
 
-  const handleSubmit = () => {
-    let correct = false;
-
-    if (current.type === "input") {
-      correct = inputAnswer.trim().toUpperCase() === current.correctAnswer;
-    } else if (current.type === "multi-choice") {
-      correct =
-        JSON.stringify(selected.sort()) ===
-        JSON.stringify(current.correctAnswer.sort());
-    } else if (current.type === "ordered-choice") {
-      correct =
-        JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
-    }
-
-    setIsCorrect(correct);
-    if (correct) setCorrectCount((prev) => prev + 1);
-    setShowFeedback(true);
-  };
-
-  const handleNext = () => {
-    setShowFeedback(false);
-    setSelected([]);
-    setInputAnswer("");
-
-    if (currentLevel < levels.length - 1) {
-      setCurrentLevel((prev) => prev + 1);
-    } else {
-      setShowSummary(true);
+  const fetchLevels = async () => {
+    try {
+      setLoading(true);
+      const levelsRef = collection(db, 'cipherQuestLevels');
+      const snapshot = await getDocs(levelsRef);
+      const levelsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })).sort((a, b) => a.level - b.level);
+      setLevels(levelsData);
+    } catch (err) {
+      console.error('Error fetching levels:', err);
+      setError('Failed to load levels. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const restart = () => {
-    setCurrentLevel(0);
-    setSelected([]);
-    setInputAnswer("");
-    setShowFeedback(false);
-    setShowSummary(false);
-    setCorrectCount(0);
+  const handleNewLevel = () => {
+    setIsNewLevel(true);
+    setEditingLevel('new');
+    setEditForm({
+      title: '',
+      scenario: '',
+      question: '',
+      type: 'input',
+      correctAnswer: '',
+      feedback: '',
+      options: []
+    });
   };
+
+  const handleEdit = (level) => {
+    setIsNewLevel(false);
+    setEditingLevel(level.id);
+    setEditForm({
+      title: level.title,
+      scenario: level.scenario,
+      question: level.question,
+      type: level.type,
+      correctAnswer: Array.isArray(level.correctAnswer) ? level.correctAnswer.join(',') : level.correctAnswer,
+      feedback: level.feedback,
+      options: level.options ? level.options.join('\n') : ''
+    });
+  };
+
+  const handleUpdate = async (levelId) => {
+    try {
+      const updatedData = {
+        ...editForm,
+        correctAnswer: editForm.type === 'input' ? editForm.correctAnswer : 
+          editForm.correctAnswer.split(',').map(num => parseInt(num.trim())),
+        options: editForm.options.split('\n').filter(opt => opt.trim()),
+        updatedAt: new Date().toISOString()
+      };
+
+      if (isNewLevel) {
+        // Add new level
+        updatedData.level = levels.length + 1;
+        updatedData.createdAt = new Date().toISOString();
+        await addDoc(collection(db, 'cipherQuestLevels'), updatedData);
+      } else {
+        // Update existing level
+        const levelRef = doc(db, 'cipherQuestLevels', levelId);
+        await updateDoc(levelRef, updatedData);
+      }
+      
+      setEditingLevel(null);
+      setIsNewLevel(false);
+      fetchLevels();
+    } catch (err) {
+      console.error('Error saving level:', err);
+      setError('Failed to save level. Please try again.');
+    }
+  };
+
+  const handleDelete = async (levelId) => {
+    if (window.confirm('Are you sure you want to delete this level?')) {
+      try {
+        const levelRef = doc(db, 'cipherQuestLevels', levelId);
+        await deleteDoc(levelRef);
+        fetchLevels();
+      } catch (err) {
+        console.error('Error deleting level:', err);
+        setError('Failed to delete level. Please try again.');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="cipher-quest-container">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading levels...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="cipher-quest-container">
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cipher-quest-container">
-      {showSummary && (
-        <>
-          <Confetti numberOfPieces={300} recycle={false} />
-          <div className="card animate-fade-in summary-card">
-            <h2>🎉 Mission Complete</h2>
-            <p className="summary-score">
-              You scored {correctCount} / {levels.length}
-            </p>
-            <p className="emoji-feedback">
-              {correctCount === levels.length
-                ? "🎯🧠🔐 You're a true cyber defender!"
-                : correctCount >= 3
-                ? "💡 Great job! Keep practicing."
-                : "🧪 Good attempt! Try again to improve your skills."}
-            </p>
-            <button className="next-btn" onClick={restart}>
-              Restart Game
-            </button>
-          </div>
-        </>
-      )}
-
-      {!showSummary && (
-        <div className="card animate-fade-in">
-          <h2>
-            Level {current.level}: {current.title}
-          </h2>
-          <p className="scenario">{current.scenario}</p>
-          <p className="question">{current.question}</p>
-
-          {current.type === "input" && (
-            <input
-              type="text"
-              placeholder="Your Answer"
-              value={inputAnswer}
-              onChange={(e) => setInputAnswer(e.target.value)}
-              className="input-field"
-            />
-          )}
-
-          {(current.type === "multi-choice" ||
-            current.type === "ordered-choice") && (
-            <ul className="options">
-              {current.options.map((opt, idx) => (
-                <li
-                  key={idx}
-                  onClick={() => {
-                    if (current.type === "multi-choice") {
-                      setSelected((prev) =>
-                        prev.includes(idx)
-                          ? prev.filter((i) => i !== idx)
-                          : [...prev, idx]
-                      );
-                    } else {
-                      setSelected((prev) =>
-                        prev.includes(idx) ? prev : [...prev, idx]
-                      );
-                    }
-                  }}
-                  className={
-                    selected.includes(idx) ? "option selected" : "option"
-                  }
-                >
-                  {opt}
-                </li>
-              ))}
-            </ul>
-          )}
-
-          {!showFeedback ? (
-            <button className="submit-btn" onClick={handleSubmit}>
-              Submit
-            </button>
-          ) : (
-            <>
-              <p
-                className={
-                  isCorrect ? "feedback correct" : "feedback incorrect"
-                }
-              >
-                {isCorrect ? "✅ Correct!" : "❌ Not quite."}
-              </p>
-              <p className="explanation">💡 {current.feedback}</p>
-              <button className="next-btn" onClick={handleNext}>
-                {currentLevel === levels.length - 1
-                  ? "Finish Game"
-                  : "Next Level"}
-              </button>
-            </>
-          )}
+      <div className="levels-column">
+        <div className="admin-header">
+          <h1>CipherQuest Levels</h1>
+          <button className="new-level-btn" onClick={handleNewLevel}>
+            + New Level
+          </button>
         </div>
-      )}
+
+        {editingLevel === 'new' && (
+          <div className="level-card new-level-card">
+            <div className="level-header">
+              <h2>Create New Level</h2>
+              <button 
+                className="cancel-btn"
+                onClick={() => {
+                  setEditingLevel(null);
+                  setIsNewLevel(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="edit-form">
+              <input
+                type="text"
+                value={editForm.title}
+                onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                placeholder="Level Title"
+                className="edit-input"
+              />
+              <textarea
+                value={editForm.scenario}
+                onChange={(e) => setEditForm({...editForm, scenario: e.target.value})}
+                placeholder="Scenario"
+                className="edit-textarea"
+              />
+              <input
+                type="text"
+                value={editForm.question}
+                onChange={(e) => setEditForm({...editForm, question: e.target.value})}
+                placeholder="Question"
+                className="edit-input"
+              />
+              <select
+                value={editForm.type}
+                onChange={(e) => setEditForm({...editForm, type: e.target.value})}
+                className="edit-select"
+              >
+                <option value="input">Input</option>
+                <option value="multi-choice">Multiple Choice</option>
+                <option value="ordered-choice">Ordered Choice</option>
+              </select>
+              <input
+                type="text"
+                value={editForm.correctAnswer}
+                onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
+                placeholder="Correct Answer (comma-separated for multiple)"
+                className="edit-input"
+              />
+              <textarea
+                value={editForm.feedback}
+                onChange={(e) => setEditForm({...editForm, feedback: e.target.value})}
+                placeholder="Feedback"
+                className="edit-textarea"
+              />
+              {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
+                <textarea
+                  value={editForm.options}
+                  onChange={(e) => setEditForm({...editForm, options: e.target.value})}
+                  placeholder="Options (one per line)"
+                  className="edit-textarea"
+                />
+              )}
+              <div className="edit-actions">
+                <button 
+                  className="save-btn"
+                  onClick={() => handleUpdate('new')}
+                >
+                  Create Level
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {levels.map((level) => (
+          <div key={level.id} className="level-card">
+            <div className="level-header">
+              <h2>Level {level.level}: {level.title}</h2>
+              <div className="level-actions">
+                <button 
+                  className="edit-btn"
+                  onClick={() => handleEdit(level)}
+                >
+                  Edit
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={() => handleDelete(level.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            {editingLevel === level.id ? (
+              <div className="edit-form">
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                  placeholder="Level Title"
+                  className="edit-input"
+                />
+                <textarea
+                  value={editForm.scenario}
+                  onChange={(e) => setEditForm({...editForm, scenario: e.target.value})}
+                  placeholder="Scenario"
+                  className="edit-textarea"
+                />
+                <input
+                  type="text"
+                  value={editForm.question}
+                  onChange={(e) => setEditForm({...editForm, question: e.target.value})}
+                  placeholder="Question"
+                  className="edit-input"
+                />
+                <select
+                  value={editForm.type}
+                  onChange={(e) => setEditForm({...editForm, type: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="input">Input</option>
+                  <option value="multi-choice">Multiple Choice</option>
+                  <option value="ordered-choice">Ordered Choice</option>
+                </select>
+                <input
+                  type="text"
+                  value={editForm.correctAnswer}
+                  onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
+                  placeholder="Correct Answer (comma-separated for multiple)"
+                  className="edit-input"
+                />
+                <textarea
+                  value={editForm.feedback}
+                  onChange={(e) => setEditForm({...editForm, feedback: e.target.value})}
+                  placeholder="Feedback"
+                  className="edit-textarea"
+                />
+                {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
+                  <textarea
+                    value={editForm.options}
+                    onChange={(e) => setEditForm({...editForm, options: e.target.value})}
+                    placeholder="Options (one per line)"
+                    className="edit-textarea"
+                  />
+                )}
+                <div className="edit-actions">
+                  <button 
+                    className="save-btn"
+                    onClick={() => handleUpdate(level.id)}
+                  >
+                    Save Changes
+                  </button>
+                  <button 
+                    className="cancel-btn"
+                    onClick={() => setEditingLevel(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="level-content">
+                <p className="scenario">{level.scenario}</p>
+                <p className="question">{level.question}</p>
+                {level.type !== 'input' && level.options && (
+                  <ul className="options-preview">
+                    {level.options.map((opt, idx) => (
+                      <li key={idx}>{opt}</li>
+                    ))}
+                  </ul>
+                )}
+                <p className="feedback-preview">Feedback: {level.feedback}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

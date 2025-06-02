@@ -17,6 +17,7 @@ import SignUpModal from "./SignUpModal";
 import ProtectedRoute from "./ProtectedRoute";
 import HackAware from "./assets/HackAware.png";
 import CipherQuest from "./CipherQuest";
+import { initializeGames } from './firebase/initializeGames';
 
 // Initialize challenges immediately
 console.log('🚀 Starting app initialization...');
@@ -52,6 +53,11 @@ function App() {
       console.log('Cleaning up Firebase auth state listener');
       unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    // Initialize game data in Firestore
+    initializeGames();
   }, []);
 
   const toggleMenu = () => {

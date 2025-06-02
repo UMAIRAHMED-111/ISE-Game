@@ -1,311 +1,352 @@
 import React, { useState, useEffect } from "react";
-import Confetti from "react-confetti";
-import { useWindowSize } from "@react-hook/window-size";
 import "./CyberEscapeRoom.css";
+import { db } from './firebase/config';
+import { collection, getDocs, doc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore';
 
-// ========================
-// Questions Arrays
-// ========================
-const easyQuestions = [
-  {
-    question:
-      'You receive an email from "support@yourbank-secure.com" asking to verify your account. What should you do?',
-    options: [
-      "Click the link and enter details",
-      "Ignore it",
-      "Reply with account details",
-      "Call the number in the email",
-    ],
-    correctAnswer: "Ignore it",
-  },
-  {
-    question: "Which of the following is the strongest password?",
-    options: ["password123", "JohnDoe1985", "P@ssw0rd!", "Xj!4z$L8m&Nq"],
-    correctAnswer: "Xj!4z$L8m&Nq",
-  },
-  {
-    question: "What is the safest way to share sensitive data?",
-    options: [
-      "Via email without encryption",
-      "Through a secured connection",
-      "On social media",
-      "With a public cloud link",
-    ],
-    correctAnswer: "Through a secured connection",
-  },
-  {
-    question:
-      "What should you do if your antivirus software warns you about malware?",
-    options: [
-      "Ignore the warning",
-      "Delete the file immediately",
-      "Run a full system scan",
-      "Restart your computer",
-    ],
-    correctAnswer: "Run a full system scan",
-  },
-  {
-    question: "What does HTTPS indicate in a website URL?",
-    options: [
-      "A secure connection",
-      "A fast website",
-      "A public Wi-Fi network",
-      "A fake website",
-    ],
-    correctAnswer: "A secure connection",
-  },
-];
-
-const mediumQuestions = [
-  {
-    question:
-      "A stranger calls claiming to be IT support and asks to install remote access software. What do you do?",
-    options: [
-      "Install the software",
-      "Verify by calling IT department",
-      "Give them your password",
-      "Ignore and hang up",
-    ],
-    correctAnswer: "Verify by calling IT department",
-  },
-  {
-    question:
-      "A phishing attack that redirects you to a fake login page is called?",
-    options: [
-      "Man-in-the-middle attack",
-      "SQL Injection",
-      "Spoofing",
-      "Pharming",
-    ],
-    correctAnswer: "Pharming",
-  },
-  {
-    question: "What does two-factor authentication (2FA) add?",
-    options: [
-      "A second password",
-      "An extra layer of security",
-      "Reduced account access",
-      "Faster login",
-    ],
-    correctAnswer: "An extra layer of security",
-  },
-  {
-    question:
-      "What should you do if you receive an unexpected email attachment?",
-    options: [
-      "Open it immediately",
-      "Scan it with antivirus software",
-      "Forward it to your contacts",
-      "Reply to the sender",
-    ],
-    correctAnswer: "Scan it with antivirus software",
-  },
-  {
-    question: "How often should you update your passwords?",
-    options: [
-      "Every week",
-      "Every month",
-      "Every few months",
-      "Every few years",
-    ],
-    correctAnswer: "Every few months",
-  },
-];
-
-const hardQuestions = [
-  {
-    question: 'What does a "zero-day exploit" mean?',
-    options: [
-      "An attack happening in zero seconds",
-      "A vulnerability with no fix yet",
-      "A virus that spreads in a day",
-      "A DoS attack",
-    ],
-    correctAnswer: "A vulnerability with no fix yet",
-  },
-  {
-    question: "What is ransomware?",
-    options: [
-      "A type of malware that encrypts your files and demands payment",
-      "Software used for data backups",
-      "An antivirus program",
-      "A type of firewall",
-    ],
-    correctAnswer:
-      "A type of malware that encrypts your files and demands payment",
-  },
-  {
-    question: "How can you ensure the security of your Wi-Fi network?",
-    options: [
-      "Turn off encryption",
-      "Use a strong WPA2 password",
-      "Share the password publicly",
-      "Use open access points",
-    ],
-    correctAnswer: "Use a strong WPA2 password",
-  },
-  {
-    question: "What should you do after a suspected data breach?",
-    options: [
-      "Ignore it",
-      "Notify affected parties and change your passwords",
-      "Delete your accounts",
-      "Wait for further instructions",
-    ],
-    correctAnswer: "Notify affected parties and change your passwords",
-  },
-];
-
-// ========================
-// Utility Functions
-// ========================
-
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
-function generateQuestions() {
-  return [
-    ...shuffle(easyQuestions).slice(0, 3),
-    ...shuffle(mediumQuestions).slice(0, 2),
-    ...shuffle(hardQuestions).slice(0, 2),
-  ];
-}
-
-// ========================
-// CyberEscapeRoom Component
-// ========================
 function CyberEscapeRoom() {
-  const [questions, setQuestions] = useState(generateQuestions());
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState(null);
-  const [correctCount, setCorrectCount] = useState(0);
-  const [questionsAsked, setQuestionsAsked] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(120);
-  const [completed, setCompleted] = useState(false);
-  const [timeTaken, setTimeTaken] = useState(0);
-  const [width, height] = useWindowSize();
+  const [questions, setQuestions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [editingQuestion, setEditingQuestion] = useState(null);
+  const [isNewQuestion, setIsNewQuestion] = useState(false);
+  const [editForm, setEditForm] = useState({
+    question: '',
+    options: [],
+    correctAnswer: '',
+    explanation: '',
+    securityTip: '',
+    difficulty: 'easy',
+    points: 10
+  });
 
   useEffect(() => {
-    if (timeLeft > 0 && !completed) {
-      const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
-      return () => clearInterval(timer);
-    } else if (timeLeft === 0 && !completed) {
-      setCompleted(true);
-      alert("Time’s up! You failed to escape.");
-    }
-  }, [timeLeft, completed]);
+    fetchQuestions();
+  }, []);
 
-  const handleOptionSelect = (option) => {
-    setSelectedAnswer(option);
-  };
-
-  const handleSubmit = () => {
-    const isCorrect =
-      selectedAnswer === questions[currentQuestionIndex].correctAnswer;
-    const updatedCorrectCount = isCorrect ? correctCount + 1 : correctCount;
-    setQuestionsAsked((prev) => prev + 1);
-
-    if (isCorrect) {
-      setCorrectCount(updatedCorrectCount);
-    }
-
-    if (updatedCorrectCount >= 5) {
-      setCompleted(true);
-      setTimeTaken(120 - timeLeft);
-    } else {
-      const nextIndex = (currentQuestionIndex + 1) % questions.length;
-      setCurrentQuestionIndex(nextIndex);
-      setSelectedAnswer(null);
+  const fetchQuestions = async () => {
+    try {
+      setLoading(true);
+      const questionsRef = collection(db, 'escapeRoomQuestions');
+      const snapshot = await getDocs(questionsRef);
+      const questionsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setQuestions(questionsData);
+    } catch (err) {
+      console.error('Error fetching questions:', err);
+      setError('Failed to load questions. Please try again later.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const restartGame = () => {
-    setQuestions(generateQuestions());
-    setCurrentQuestionIndex(0);
-    setSelectedAnswer(null);
-    setCorrectCount(0);
-    setQuestionsAsked(0);
-    setTimeLeft(120);
-    setCompleted(false);
-    setTimeTaken(0);
+  const handleNewQuestion = () => {
+    setIsNewQuestion(true);
+    setEditingQuestion('new');
+    setEditForm({
+      question: '',
+      options: [
+        { id: "A", text: "" },
+        { id: "B", text: "" },
+        { id: "C", text: "" },
+        { id: "D", text: "" }
+      ],
+      correctAnswer: '',
+      explanation: '',
+      securityTip: '',
+      difficulty: 'easy',
+      points: 10
+    });
   };
+
+  const handleEdit = (question) => {
+    setIsNewQuestion(false);
+    setEditingQuestion(question.id);
+    setEditForm({
+      question: question.question,
+      options: question.options,
+      correctAnswer: question.correctAnswer,
+      explanation: question.explanation,
+      securityTip: question.securityTip,
+      difficulty: question.difficulty || 'easy',
+      points: question.points || 10
+    });
+  };
+
+  const handleUpdate = async (questionId) => {
+    try {
+      const updatedData = {
+        ...editForm,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (isNewQuestion) {
+        updatedData.createdAt = new Date().toISOString();
+        await addDoc(collection(db, 'escapeRoomQuestions'), updatedData);
+      } else {
+        const questionRef = doc(db, 'escapeRoomQuestions', questionId);
+        await updateDoc(questionRef, updatedData);
+      }
+      
+      setEditingQuestion(null);
+      setIsNewQuestion(false);
+      fetchQuestions();
+    } catch (err) {
+      console.error('Error saving question:', err);
+      setError('Failed to save question. Please try again.');
+    }
+  };
+
+  const handleDelete = async (questionId) => {
+    if (window.confirm('Are you sure you want to delete this question?')) {
+      try {
+        const questionRef = doc(db, 'escapeRoomQuestions', questionId);
+        await deleteDoc(questionRef);
+        fetchQuestions();
+      } catch (err) {
+        console.error('Error deleting question:', err);
+        setError('Failed to delete question. Please try again.');
+      }
+    }
+  };
+
+  const handleOptionChange = (index, value) => {
+    const newOptions = [...editForm.options];
+    newOptions[index] = { ...newOptions[index], text: value };
+    setEditForm({ ...editForm, options: newOptions });
+  };
+
+  if (loading) {
+    return (
+      <div className="escape-room">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading questions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="escape-room">
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="escape-room">
-      <h2>Cyber Escape Room</h2>
-      <p>
-        Time Left: {Math.floor(timeLeft / 60)}:
-        {(timeLeft % 60).toString().padStart(2, "0")}
-      </p>
+      <div className="questions-column">
+        <div className="admin-header">
+          <h1>Escape Room Questions</h1>
+          <button className="new-question-btn" onClick={handleNewQuestion}>
+            + New Question
+          </button>
+        </div>
 
-      {completed ? (
-        <>
-          {correctCount >= 5 && <Confetti width={width} height={height} />}
-          <div className="result animate-slide-up">
-            <h3>{correctCount >= 5 ? "🎉 You Escaped!" : "🧱 Game Over!"}</h3>
-            <p>
-              🎯 Final Score: {correctCount} / {questionsAsked}
-            </p>
-            <p>
-              ⏱️ Time Taken: {Math.floor(timeTaken / 60)}:
-              {(timeTaken % 60).toString().padStart(2, "0")}
-            </p>
-            <p>🔐 Stay sharp and protect your digital footprint!</p>
-            <div className="button-container">
-              <button onClick={restartGame}>Restart Game</button>
-              <a href="/" className="back-button">
-                Back to Homepage
-              </a>
+        {editingQuestion === 'new' && (
+          <div className="question-card new-question-card">
+            <div className="question-header">
+              <h2>Create New Question</h2>
+              <button 
+                className="cancel-btn"
+                onClick={() => {
+                  setEditingQuestion(null);
+                  setIsNewQuestion(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="edit-form">
+              <input
+                type="text"
+                value={editForm.question}
+                onChange={(e) => setEditForm({...editForm, question: e.target.value})}
+                placeholder="Question"
+                className="edit-input"
+              />
+              {editForm.options.map((option, index) => (
+                <input
+                  key={option.id}
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => handleOptionChange(index, e.target.value)}
+                  placeholder={`Option ${option.id}`}
+                  className="edit-input"
+                />
+              ))}
+              <select
+                value={editForm.correctAnswer}
+                onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
+                className="edit-select"
+              >
+                <option value="">Select Correct Answer</option>
+                {editForm.options.map(option => (
+                  <option key={option.id} value={option.id}>{option.id}</option>
+                ))}
+              </select>
+              <textarea
+                value={editForm.explanation}
+                onChange={(e) => setEditForm({...editForm, explanation: e.target.value})}
+                placeholder="Explanation"
+                className="edit-textarea"
+              />
+              <textarea
+                value={editForm.securityTip}
+                onChange={(e) => setEditForm({...editForm, securityTip: e.target.value})}
+                placeholder="Security Tip"
+                className="edit-textarea"
+              />
+              <select
+                value={editForm.difficulty}
+                onChange={(e) => setEditForm({...editForm, difficulty: e.target.value})}
+                className="edit-select"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <input
+                type="number"
+                value={editForm.points}
+                onChange={(e) => setEditForm({...editForm, points: parseInt(e.target.value)})}
+                placeholder="Points"
+                className="edit-input"
+              />
+              <div className="edit-actions">
+                <button 
+                  className="save-btn"
+                  onClick={() => handleUpdate('new')}
+                >
+                  Create Question
+                </button>
+              </div>
             </div>
           </div>
-        </>
-      ) : (
-        <div className="puzzle animate-fade-in">
-          <p>
-            <strong>{questions[currentQuestionIndex].question}</strong>
-          </p>
-          <div className="options">
-            {questions[currentQuestionIndex].options.map((option, index) => {
-              let optionClass = "";
-              if (selectedAnswer) {
-                if (option === questions[currentQuestionIndex].correctAnswer) {
-                  optionClass = "correct";
-                } else if (option === selectedAnswer) {
-                  optionClass = "incorrect";
-                }
-              }
-              return (
-                <div
-                  key={index}
-                  className={`option ${optionClass}`}
-                  onClick={() => !selectedAnswer && handleOptionSelect(option)}
+        )}
+
+        {questions.map((question) => (
+          <div key={question.id} className="question-card">
+            <div className="question-header">
+              <h2>{question.question}</h2>
+              <div className="question-actions">
+                <button 
+                  className="edit-btn"
+                  onClick={() => handleEdit(question)}
                 >
-                  {option}
+                  Edit
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={() => handleDelete(question.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+
+            {editingQuestion === question.id ? (
+              <div className="edit-form">
+                <input
+                  type="text"
+                  value={editForm.question}
+                  onChange={(e) => setEditForm({...editForm, question: e.target.value})}
+                  placeholder="Question"
+                  className="edit-input"
+                />
+                {editForm.options.map((option, index) => (
+                  <input
+                    key={option.id}
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => handleOptionChange(index, e.target.value)}
+                    placeholder={`Option ${option.id}`}
+                    className="edit-input"
+                  />
+                ))}
+                <select
+                  value={editForm.correctAnswer}
+                  onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="">Select Correct Answer</option>
+                  {editForm.options.map(option => (
+                    <option key={option.id} value={option.id}>{option.id}</option>
+                  ))}
+                </select>
+                <textarea
+                  value={editForm.explanation}
+                  onChange={(e) => setEditForm({...editForm, explanation: e.target.value})}
+                  placeholder="Explanation"
+                  className="edit-textarea"
+                />
+                <textarea
+                  value={editForm.securityTip}
+                  onChange={(e) => setEditForm({...editForm, securityTip: e.target.value})}
+                  placeholder="Security Tip"
+                  className="edit-textarea"
+                />
+                <select
+                  value={editForm.difficulty}
+                  onChange={(e) => setEditForm({...editForm, difficulty: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <input
+                  type="number"
+                  value={editForm.points}
+                  onChange={(e) => setEditForm({...editForm, points: parseInt(e.target.value)})}
+                  placeholder="Points"
+                  className="edit-input"
+                />
+                <div className="edit-actions">
+                  <button 
+                    className="save-btn"
+                    onClick={() => handleUpdate(question.id)}
+                  >
+                    Save Changes
+                  </button>
+                  <button 
+                    className="cancel-btn"
+                    onClick={() => setEditingQuestion(null)}
+                  >
+                    Cancel
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            ) : (
+              <div className="question-content">
+                <div className="options-preview">
+                  {question.options.map((option) => (
+                    <div key={option.id} className="option-preview">
+                      <span className="option-label">{option.id}</span>
+                      <span className="option-text">{option.text}</span>
+                      {option.id === question.correctAnswer && (
+                        <span className="correct-badge">Correct</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <div className="question-details">
+                  <p><strong>Difficulty:</strong> {question.difficulty}</p>
+                  <p><strong>Points:</strong> {question.points}</p>
+                  <p><strong>Explanation:</strong> {question.explanation}</p>
+                  <p><strong>Security Tip:</strong> {question.securityTip}</p>
+                </div>
+              </div>
+            )}
           </div>
-          {selectedAnswer && (
-            <p
-              className={`feedback ${
-                selectedAnswer === questions[currentQuestionIndex].correctAnswer
-                  ? "correct"
-                  : "incorrect"
-              }`}
-            >
-              {selectedAnswer === questions[currentQuestionIndex].correctAnswer
-                ? "✅ Correct Answer!"
-                : "❌ Wrong Answer!"}
-            </p>
-          )}
-          <div className="button-container">
-            <button onClick={handleSubmit} disabled={!selectedAnswer}>
-              Submit
-            </button>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 }
