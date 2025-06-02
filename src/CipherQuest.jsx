@@ -185,7 +185,6 @@ function CipherQuest() {
                 className="edit-select"
               >
                 <option value="input">Input</option>
-                <option value="multi-choice">Multiple Choice</option>
                 <option value="ordered-choice">Ordered Choice</option>
               </select>
               <input
@@ -198,7 +197,7 @@ function CipherQuest() {
               <textarea
                 value={editForm.feedback}
                 onChange={(e) => setEditForm({...editForm, feedback: e.target.value})}
-                placeholder="Feedback"
+                placeholder="Hint"
                 className="edit-textarea"
               />
               {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
@@ -269,7 +268,6 @@ function CipherQuest() {
                   className="edit-select"
                 >
                   <option value="input">Input</option>
-                  <option value="multi-choice">Multiple Choice</option>
                   <option value="ordered-choice">Ordered Choice</option>
                 </select>
                 <input
@@ -282,7 +280,7 @@ function CipherQuest() {
                 <textarea
                   value={editForm.feedback}
                   onChange={(e) => setEditForm({...editForm, feedback: e.target.value})}
-                  placeholder="Feedback"
+                  placeholder="Hint"
                   className="edit-textarea"
                 />
                 {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
@@ -319,7 +317,7 @@ function CipherQuest() {
                     ))}
                   </ul>
                 )}
-                <p className="feedback-preview">Feedback: {level.feedback}</p>
+                <p className="feedback-preview">Hint: {level.feedback}</p>
               </div>
             )}
           </div>
