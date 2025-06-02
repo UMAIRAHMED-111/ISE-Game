@@ -13,10 +13,13 @@ function CipherQuest() {
     title: '',
     scenario: '',
     question: '',
-    type: '',
-    correctAnswer: '',
+    type: 'ordered-choice',
+    correctAnswer: [],
     feedback: '',
-    options: []
+    options: [],
+    level: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   });
 
   useEffect(() => {
@@ -48,10 +51,13 @@ function CipherQuest() {
       title: '',
       scenario: '',
       question: '',
-      type: 'input',
-      correctAnswer: '',
+      type: 'ordered-choice',
+      correctAnswer: [],
       feedback: '',
-      options: []
+      options: [],
+      level: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
   };
 
@@ -63,19 +69,21 @@ function CipherQuest() {
       scenario: level.scenario,
       question: level.question,
       type: level.type,
-      correctAnswer: Array.isArray(level.correctAnswer) ? level.correctAnswer.join(',') : level.correctAnswer,
+      correctAnswer: level.correctAnswer,
       feedback: level.feedback,
-      options: level.options ? level.options.join('\n') : ''
+      options: level.options,
+      level: level.level,
+      createdAt: level.createdAt,
+      updatedAt: level.updatedAt
     });
   };
 
   const handleUpdate = async (levelId) => {
     try {
+      console.log('Original editForm:', editForm);
+      
       const updatedData = {
         ...editForm,
-        correctAnswer: editForm.type === 'input' ? editForm.correctAnswer : 
-          editForm.correctAnswer.split(',').map(num => parseInt(num.trim())),
-        options: editForm.options.split('\n').filter(opt => opt.trim()),
         updatedAt: new Date().toISOString()
       };
 
@@ -83,11 +91,16 @@ function CipherQuest() {
         // Add new level
         updatedData.level = levels.length + 1;
         updatedData.createdAt = new Date().toISOString();
-        await addDoc(collection(db, 'cipherQuestLevels'), updatedData);
+        const levelsRef = collection(db, 'cipherQuestLevels');
+        console.log('Attempting to add new level with data:', updatedData);
+        const docRef = await addDoc(levelsRef, updatedData);
+        console.log('New level added with ID:', docRef.id);
       } else {
         // Update existing level
         const levelRef = doc(db, 'cipherQuestLevels', levelId);
+        console.log('Attempting to update level', levelId, 'with data:', updatedData);
         await updateDoc(levelRef, updatedData);
+        console.log('Level updated successfully');
       }
       
       setEditingLevel(null);
@@ -95,6 +108,11 @@ function CipherQuest() {
       fetchLevels();
     } catch (err) {
       console.error('Error saving level:', err);
+      console.error('Error details:', {
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      });
       setError('Failed to save level. Please try again.');
     }
   };
@@ -187,11 +205,17 @@ function CipherQuest() {
                 <option value="input">Input</option>
                 <option value="ordered-choice">Ordered Choice</option>
               </select>
+              <textarea
+                value={editForm.options.join('\n')}
+                onChange={(e) => setEditForm({...editForm, options: e.target.value.split('\n')})}
+                placeholder="Options (one per line)"
+                className="edit-textarea"
+              />
               <input
                 type="text"
-                value={editForm.correctAnswer}
-                onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
-                placeholder="Correct Answer (comma-separated for multiple)"
+                value={editForm.correctAnswer.join(',')}
+                onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value.split(',').map(num => parseInt(num.trim()))})}
+                placeholder="Correct Answer (comma-separated numbers)"
                 className="edit-input"
               />
               <textarea
@@ -200,14 +224,6 @@ function CipherQuest() {
                 placeholder="Hint"
                 className="edit-textarea"
               />
-              {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
-                <textarea
-                  value={editForm.options}
-                  onChange={(e) => setEditForm({...editForm, options: e.target.value})}
-                  placeholder="Options (one per line)"
-                  className="edit-textarea"
-                />
-              )}
               <div className="edit-actions">
                 <button 
                   className="save-btn"
@@ -270,11 +286,17 @@ function CipherQuest() {
                   <option value="input">Input</option>
                   <option value="ordered-choice">Ordered Choice</option>
                 </select>
+                <textarea
+                  value={editForm.options.join('\n')}
+                  onChange={(e) => setEditForm({...editForm, options: e.target.value.split('\n')})}
+                  placeholder="Options (one per line)"
+                  className="edit-textarea"
+                />
                 <input
                   type="text"
-                  value={editForm.correctAnswer}
-                  onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
-                  placeholder="Correct Answer (comma-separated for multiple)"
+                  value={editForm.correctAnswer.join(',')}
+                  onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value.split(',').map(num => parseInt(num.trim()))})}
+                  placeholder="Correct Answer (comma-separated numbers)"
                   className="edit-input"
                 />
                 <textarea
@@ -283,14 +305,6 @@ function CipherQuest() {
                   placeholder="Hint"
                   className="edit-textarea"
                 />
-                {(editForm.type === 'multi-choice' || editForm.type === 'ordered-choice') && (
-                  <textarea
-                    value={editForm.options}
-                    onChange={(e) => setEditForm({...editForm, options: e.target.value})}
-                    placeholder="Options (one per line)"
-                    className="edit-textarea"
-                  />
-                )}
                 <div className="edit-actions">
                   <button 
                     className="save-btn"

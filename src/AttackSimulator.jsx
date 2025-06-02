@@ -8,6 +8,7 @@ function AttackSimulator() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editingScenario, setEditingScenario] = useState(null);
+  const [isNewScenario, setIsNewScenario] = useState(false);
   const [formData, setFormData] = useState({
     type: "",
     description: "",
@@ -15,7 +16,9 @@ function AttackSimulator() {
     correctOption: "",
     explanation: "",
     difficulty: "easy",
-    points: 10
+    points: 10,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   });
 
   useEffect(() => {
@@ -54,40 +57,25 @@ function AttackSimulator() {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const scenariosRef = collection(db, 'attackScenarios');
-      if (editingScenario) {
-        await updateDoc(doc(db, 'attackScenarios', editingScenario.id), {
-          ...formData,
-          updatedAt: new Date().toISOString()
-        });
-      } else {
-        await addDoc(scenariosRef, {
-          ...formData,
-          createdAt: new Date().toISOString()
-        });
-      }
-      setFormData({
-        type: "",
-        description: "",
-        options: [{ id: "A", text: "" }, { id: "B", text: "" }, { id: "C", text: "" }, { id: "D", text: "" }],
-        correctOption: "",
-        explanation: "",
-        difficulty: "easy",
-        points: 10
-      });
-      setEditingScenario(null);
-      fetchScenarios();
-    } catch (err) {
-      console.error('Error saving scenario:', err);
-      setError('Failed to save scenario. Please try again.');
-    }
+  const handleNewScenario = () => {
+    setIsNewScenario(true);
+    setEditingScenario('new');
+    setFormData({
+      type: "",
+      description: "",
+      options: [{ id: "A", text: "" }, { id: "B", text: "" }, { id: "C", text: "" }, { id: "D", text: "" }],
+      correctOption: "",
+      explanation: "",
+      difficulty: "easy",
+      points: 10,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
   };
 
   const handleEdit = (scenario) => {
-    setEditingScenario(scenario);
+    setIsNewScenario(false);
+    setEditingScenario(scenario.id);
     setFormData({
       type: scenario.type,
       description: scenario.description,
@@ -95,8 +83,48 @@ function AttackSimulator() {
       correctOption: scenario.correctOption,
       explanation: scenario.explanation,
       difficulty: scenario.difficulty,
-      points: scenario.points
+      points: scenario.points,
+      createdAt: scenario.createdAt,
+      updatedAt: scenario.updatedAt
     });
+  };
+
+  const handleUpdate = async (scenarioId) => {
+    try {
+      console.log('Original formData:', formData);
+      
+      const updatedData = {
+        ...formData,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (isNewScenario) {
+        // Add new scenario
+        updatedData.createdAt = new Date().toISOString();
+        const scenariosRef = collection(db, 'attackScenarios');
+        console.log('Attempting to add new scenario with data:', updatedData);
+        const docRef = await addDoc(scenariosRef, updatedData);
+        console.log('New scenario added with ID:', docRef.id);
+      } else {
+        // Update existing scenario
+        const scenarioRef = doc(db, 'attackScenarios', scenarioId);
+        console.log('Attempting to update scenario', scenarioId, 'with data:', updatedData);
+        await updateDoc(scenarioRef, updatedData);
+        console.log('Scenario updated successfully');
+      }
+      
+      setEditingScenario(null);
+      setIsNewScenario(false);
+      fetchScenarios();
+    } catch (err) {
+      console.error('Error saving scenario:', err);
+      console.error('Error details:', {
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      });
+      setError('Failed to save scenario. Please try again.');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -137,124 +165,197 @@ function AttackSimulator() {
     <div className="attack-simulator">
       <div className="admin-header">
         <h2>Attack Scenarios</h2>
-        <button className="new-scenario-btn" onClick={() => setEditingScenario(null)}>
+        <button className="new-scenario-btn" onClick={handleNewScenario}>
           Add New Scenario
         </button>
       </div>
 
       <div className="scenarios-list">
+        {editingScenario === 'new' && (
+          <div className="scenario-card new-scenario-card">
+            <div className="level-header">
+              <h2>Create New Scenario</h2>
+              <button 
+                className="cancel-btn"
+                onClick={() => {
+                  setEditingScenario(null);
+                  setIsNewScenario(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="edit-form">
+              <input
+                type="text"
+                value={formData.type}
+                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                placeholder="Attack Type"
+                className="edit-input"
+              />
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Description"
+                className="edit-textarea"
+              />
+              {formData.options.map((option, index) => (
+                <input
+                  key={option.id}
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => {
+                    const newOptions = [...formData.options];
+                    newOptions[index].text = e.target.value;
+                    setFormData({...formData, options: newOptions});
+                  }}
+                  placeholder={`Option ${option.id}`}
+                  className="edit-input"
+                />
+              ))}
+              <select
+                value={formData.correctOption}
+                onChange={(e) => setFormData({...formData, correctOption: e.target.value})}
+                className="edit-select"
+              >
+                <option value="">Select correct option</option>
+                {formData.options.map(option => (
+                  <option key={option.id} value={option.id}>
+                    {option.id}
+                  </option>
+                ))}
+              </select>
+              <textarea
+                value={formData.explanation}
+                onChange={(e) => setFormData({...formData, explanation: e.target.value})}
+                placeholder="Explanation"
+                className="edit-textarea"
+              />
+              <select
+                value={formData.difficulty}
+                onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
+                className="edit-select"
+              >
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+              <input
+                type="number"
+                value={formData.points}
+                onChange={(e) => setFormData({...formData, points: parseInt(e.target.value)})}
+                min="1"
+                className="edit-input"
+              />
+              <div className="edit-actions">
+                <button 
+                  className="save-btn"
+                  onClick={() => handleUpdate('new')}
+                >
+                  Create Scenario
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {scenarios.map((scenario) => (
           <div key={scenario.id} className="scenario-card">
-            <h3>{scenario.type}</h3>
-            <p>{scenario.description}</p>
-            <div className="scenario-details">
-              <p><strong>Difficulty:</strong> {scenario.difficulty}</p>
-              <p><strong>Points:</strong> {scenario.points}</p>
-              <p><strong>Correct Option:</strong> {scenario.correctOption}</p>
-            </div>
-            <div className="scenario-actions">
-              <button className="edit-btn" onClick={() => handleEdit(scenario)}>Edit</button>
-              <button className="delete-btn" onClick={() => handleDelete(scenario.id)}>Delete</button>
-            </div>
+            {editingScenario === scenario.id ? (
+              <div className="edit-form">
+                <input
+                  type="text"
+                  value={formData.type}
+                  onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  placeholder="Attack Type"
+                  className="edit-input"
+                />
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Description"
+                  className="edit-textarea"
+                />
+                {formData.options.map((option, index) => (
+                  <input
+                    key={option.id}
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => {
+                      const newOptions = [...formData.options];
+                      newOptions[index].text = e.target.value;
+                      setFormData({...formData, options: newOptions});
+                    }}
+                    placeholder={`Option ${option.id}`}
+                    className="edit-input"
+                  />
+                ))}
+                <select
+                  value={formData.correctOption}
+                  onChange={(e) => setFormData({...formData, correctOption: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="">Select correct option</option>
+                  {formData.options.map(option => (
+                    <option key={option.id} value={option.id}>
+                      {option.id}
+                    </option>
+                  ))}
+                </select>
+                <textarea
+                  value={formData.explanation}
+                  onChange={(e) => setFormData({...formData, explanation: e.target.value})}
+                  placeholder="Explanation"
+                  className="edit-textarea"
+                />
+                <select
+                  value={formData.difficulty}
+                  onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
+                  className="edit-select"
+                >
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+                <input
+                  type="number"
+                  value={formData.points}
+                  onChange={(e) => setFormData({...formData, points: parseInt(e.target.value)})}
+                  min="1"
+                  className="edit-input"
+                />
+                <div className="edit-actions">
+                  <button 
+                    className="save-btn"
+                    onClick={() => handleUpdate(scenario.id)}
+                  >
+                    Save Changes
+                  </button>
+                  <button 
+                    className="cancel-btn"
+                    onClick={() => setEditingScenario(null)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h3>{scenario.type}</h3>
+                <p>{scenario.description}</p>
+                <div className="scenario-details">
+                  <p><strong>Difficulty:</strong> {scenario.difficulty}</p>
+                  <p><strong>Points:</strong> {scenario.points}</p>
+                  <p><strong>Correct Option:</strong> {scenario.correctOption}</p>
+                </div>
+                <div className="scenario-actions">
+                  <button className="edit-btn" onClick={() => handleEdit(scenario)}>Edit</button>
+                  <button className="delete-btn" onClick={() => handleDelete(scenario.id)}>Delete</button>
+                </div>
+              </>
+            )}
           </div>
         ))}
-      </div>
-
-      <div className="scenario-form">
-        <h3>{editingScenario ? 'Edit Scenario' : 'Add New Scenario'}</h3>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Attack Type:</label>
-            <input
-              type="text"
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Description:</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Options:</label>
-            {formData.options.map((option, index) => (
-              <input
-                key={option.id}
-                type="text"
-                value={option.text}
-                onChange={(e) => handleOptionChange(index, e.target.value)}
-                placeholder={`Option ${option.id}`}
-                required
-              />
-            ))}
-          </div>
-
-          <div className="form-group">
-            <label>Correct Option:</label>
-            <select
-              name="correctOption"
-              value={formData.correctOption}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Select correct option</option>
-              {formData.options.map(option => (
-                <option key={option.id} value={option.id}>
-                  {option.id}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Explanation:</label>
-            <textarea
-              name="explanation"
-              value={formData.explanation}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Difficulty:</label>
-            <select
-              name="difficulty"
-              value={formData.difficulty}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="easy">Easy</option>
-              <option value="medium">Medium</option>
-              <option value="hard">Hard</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Points:</label>
-            <input
-              type="number"
-              name="points"
-              value={formData.points}
-              onChange={handleInputChange}
-              min="1"
-              required
-            />
-          </div>
-
-          <button type="submit" className="submit-btn">
-            {editingScenario ? 'Update Scenario' : 'Add Scenario'}
-          </button>
-        </form>
       </div>
     </div>
   );
