@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- <link rel="icon" type="image/svg+xml" href="/vite.svg" /> -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#00cc00" />
     <title>HackAware</title>
@@ -12,6 +12,134 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
       rel="stylesheet"
     />
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
+    <!-- Firebase Firestore -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+    
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyDxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx",
+        authDomain: "infosec-project-10655.firebaseapp.com",
+        projectId: "infosec-project-10655",
+        storageBucket: "infosec-project-10655.appspot.com",
+        messagingSenderId: "10655",
+        appId: "1:10655:web:10655",
+        measurementId: "G-10655"
+      };
+
+      // Initialize Firebase
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      // Initial challenges data
+      const initialChallenges = [
+        {
+          title: "Cipher Quest",
+          description: "Crack ciphers, fix flaws, and prove your cryptography skills across levels.",
+          path: "/games/cipher-quest",
+          isNew: true,
+          rules: "Solve multi-step encryption and key management puzzles across 5 levels. Earn recognition for each correct step!",
+        },
+        {
+          title: "Security Quiz",
+          description: "Test your knowledge of social engineering, phishing, and cyber threat awareness.",
+          path: "/games/security-quiz",
+          isNew: false,
+          rules: "Answer 10 Cyber Security based questions. Correct answers earn 10 points. No penalties for wrong answers.",
+        },
+        {
+          title: "Cyber Escape Room",
+          description: "Solve challenging cybersecurity puzzles and escape the hacker's digital trap in time.",
+          path: "/games/escape-room",
+          isNew: false,
+          rules: "Solve 5 cybersecurity riddles. Each correct solution unlocks the next step. Finish within 2 minutes.",
+        },
+        {
+          title: "Master the Passwords",
+          description: "Learn to create strong, secure passwords and test their strength in real-time simulations.",
+          path: "/games/password-challenge",
+          isNew: false,
+          rules: "Enter passwords to evaluate their strength. Learn tips for improving security. No time limit.",
+        },
+        {
+          title: "Attack Simulator",
+          description: "Respond to real-time cyber threats and simulate actions against common attack scenarios.",
+          path: "/games/attack-sim",
+          isNew: false,
+          rules: "React to 10 different attack scenarios by choosing the correct action within 10 seconds. Earn 20 points for correct choices.",
+        },
+        {
+          title: "Hack The Hacker",
+          description: "Analyze hidden clues, decrypt messages, and expose vulnerabilities used by hackers.",
+          path: "/games/hack-hacker",
+          isNew: false,
+          rules: "Decrypt 3 messages and identify vulnerabilities. Each task earns 30 points.",
+        }
+      ];
+
+      // Initialize challenges in Firestore
+      async function initializeChallenges() {
+        try {
+          console.log('==========================================');
+          console.log('🎮 Starting Challenge Initialization...');
+          console.log('==========================================');
+
+          const challengesRef = db.collection('challenges');
+          console.log('📚 Created challenges collection reference');
+          
+          // Check if challenges already exist
+          console.log('🔍 Checking for existing challenges...');
+          const snapshot = await challengesRef.get();
+          console.log(`📊 Found ${snapshot.size} existing challenges`);
+          
+          if (!snapshot.empty) {
+            console.log('⏭️ Challenges already exist, skipping initialization');
+            console.log('==========================================');
+            return;
+          }
+
+          console.log('📝 No existing challenges found, starting initialization...');
+          
+          // Add each challenge individually
+          for (const challenge of initialChallenges) {
+            try {
+              // Create a clean data object with explicit key-value pairs
+              const challengeData = {
+                ...challenge,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              };
+
+              console.log(`📝 Adding challenge data:`, challengeData);
+              const docRef = await challengesRef.add(challengeData);
+              console.log(`✅ Added challenge: ${challenge.title} with ID: ${docRef.id}`);
+            } catch (error) {
+              console.error(`❌ Error adding challenge ${challenge.title}:`, error);
+              throw error;
+            }
+          }
+          
+          console.log('✅ All challenges initialized successfully!');
+          console.log('==========================================');
+          
+        } catch (error) {
+          console.error('❌ Error initializing challenges:', error);
+          console.error('Error details:', {
+            code: error.code,
+            message: error.message,
+            stack: error.stack
+          });
+        }
+      }
+
+      // Call initializeChallenges when the page loads
+      window.addEventListener('load', () => {
+        console.log('🚀 Page loaded, initializing challenges...');
+        initializeChallenges();
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>

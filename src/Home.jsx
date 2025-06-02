@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./Home.css"; // Ensure this path is correct
 import {
@@ -10,76 +10,92 @@ import {
   FaBookOpen, // Kept as in original
   FaPuzzlePiece,
 } from "react-icons/fa";
+import { db } from './firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
-const challenges = [
-  {
-    id: 0,
-    title: "Cipher Quest",
-    desc: "Crack codes, decipher messages, and prove your cryptography mastery in this thrilling challenge!",
-    icon: <FaPuzzlePiece className="challenge-icon" />,
-    path: "/games/cipher-quest",
-    isFeatured: true,
-    label: "Most Played",
-  },
-  {
-    id: 1,
-    title: "Security Quiz",
-    desc: "Test your knowledge: identify social engineering tactics and common cyber threats.",
-    icon: <FaLock className="challenge-icon" />,
-    path: "/games/security-quiz",
-    isFeatured: false,
-  },
-  {
-    id: 2,
-    title: "Cyber Escape Room",
-    desc: "Navigate a high-stakes scenario. Solve intricate cybersecurity puzzles to evade a hacker's trap.",
-    icon: <FaDoorOpen className="challenge-icon" />,
-    path: "/games/escape-room",
-    isFeatured: false,
-  },
-  {
-    id: 3,
-    title: "Password Fortress", // Enhanced title
-    desc: "Learn the art of crafting unbreakable passwords and test their resilience against attacks.",
-    icon: <FaKey className="challenge-icon" />,
-    path: "/games/password-challenge",
-    isFeatured: false,
-  },
-  {
-    id: 4,
-    title: "Threat Simulator", // Enhanced title
-    desc: "Immerse yourself in real-time scenarios and practice your response to evolving cyber threats.",
-    icon: <FaBug className="challenge-icon" />,
-    path: "/games/attack-sim",
-    isFeatured: false,
-  },
-  {
-    id: 5,
-    title: "Digital Forensics", // Enhanced title
-    desc: "Become a cyber detective. Analyze digital traces and decrypt hacker methodologies.",
-    icon: <FaUserSecret className="challenge-icon" />,
-    path: "/games/hack-hacker",
-    isFeatured: false,
-  },
-];
+// Map of challenge paths to their icons
+const challengeIcons = {
+  "/games/cipher-quest": <FaPuzzlePiece className="challenge-icon" />,
+  "/games/security-quiz": <FaLock className="challenge-icon" />,
+  "/games/escape-room": <FaDoorOpen className="challenge-icon" />,
+  "/games/password-challenge": <FaKey className="challenge-icon" />,
+  "/games/attack-sim": <FaBug className="challenge-icon" />,
+  "/games/hack-hacker": <FaUserSecret className="challenge-icon" />,
+};
 
 function Home() {
+  const [challenges, setChallenges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      try {
+        console.log('🔍 Fetching challenges from Firestore...');
+        const challengesRef = collection(db, 'challenges');
+        const snapshot = await getDocs(challengesRef);
+        
+        const challengesData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            desc: data.description,
+            path: data.path,
+            isFeatured: data.isNew || false,
+            label: data.isNew ? "NEW" : null,
+            icon: challengeIcons[data.path] || <FaBookOpen className="challenge-icon" />
+          };
+        });
+
+        console.log('✅ Fetched challenges:', challengesData);
+        setChallenges(challengesData);
+      } catch (err) {
+        console.error('❌ Error fetching challenges:', err);
+        setError('Failed to load challenges. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchChallenges();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="home">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading challenges...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="home">
+        <div className="error-container">
+          <p className="error-message">{error}</p>
+          <button onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="home">
       <div className="hero">
-        <div className="hero-content" style={{ marginTop: "80px" }}>
+        <div className="hero-content" style={{ }}>
           {" "}
           {/* Wrapper for z-index with pseudo-elements */}
-          <h1>Cybersecurity Awareness Platform</h1>
+          <h1>Admin Panel</h1>
           <p>
-            Elevate your cyber defense skills. Engage with interactive
-            challenges and realistic simulations to guard against digital
-            threats.
+          Manage and update quiz questions shown to users.
           </p>
         </div>
       </div>
 
-      <h2 className="challenges-section-title">Explore Challenges</h2>
 
       <div className="challenges-grid">
         {challenges.map((challenge) => (
