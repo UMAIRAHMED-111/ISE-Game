@@ -9,12 +9,14 @@ function CipherQuest() {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [selected, setSelected] = useState([]);
   const [inputAnswer, setInputAnswer] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setshowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [submitClicked, setSubmitClicked] = useState(false);
+
 
   useEffect(() => {
     const fetchLevels = async () => {
@@ -74,26 +76,36 @@ function CipherQuest() {
   const current = levels[currentLevel];
 
   const handleSubmit = () => {
+    setshowHint(false);
+    setSubmitClicked(true);
     let correct = false;
 
     if (current.type === "input") {
       correct = inputAnswer.trim().toUpperCase() === current.correctAnswer;
-    } else if (current.type === "multi-choice") {
-      correct =
-        JSON.stringify(selected.sort()) ===
-        JSON.stringify(current.correctAnswer.sort());
-    } else if (current.type === "ordered-choice") {
-      correct =
-        JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
-    }
+    } else correct = JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
 
     setIsCorrect(correct);
     if (correct) setCorrectCount((prev) => prev + 1);
-    setShowFeedback(true);
   };
 
+  const handleHint = () => {
+    setshowHint(true);
+    setSubmitClicked(false);
+    setIsCorrect(false);
+  }
+
+  const handleReplay = () => {
+    setSubmitClicked(false);
+    setshowHint(false);
+    setSelected([]);
+    setInputAnswer("");
+    setIsCorrect(false);
+  }
+
   const handleNext = () => {
-    setShowFeedback(false);
+    setIsCorrect(false);
+    setSubmitClicked(false);
+    setshowHint(false);
     setSelected([]);
     setInputAnswer("");
 
@@ -105,10 +117,11 @@ function CipherQuest() {
   };
 
   const restart = () => {
+    setSubmitClicked(false);
     setCurrentLevel(0);
     setSelected([]);
     setInputAnswer("");
-    setShowFeedback(false);
+    setshowHint(false);
     setShowSummary(false);
     setCorrectCount(0);
   };
@@ -123,7 +136,7 @@ function CipherQuest() {
             <p className="summary-score">
               You scored {correctCount} / {levels.length}
             </p>
-            <p className="emoji-feedback">
+            <p className="emoji-hint">
               {correctCount === levels.length
                 ? "🎯🧠🔐 You're a true cyber defender!"
                 : correctCount >= 3
@@ -155,24 +168,17 @@ function CipherQuest() {
             />
           )}
 
-          {(current.type === "multi-choice" ||
-            current.type === "ordered-choice") && (
+          {current.type === "ordered-choice" && (
             <ul className="options">
               {current.options.map((opt, idx) => (
                 <li
                   key={idx}
                   onClick={() => {
-                    if (current.type === "multi-choice") {
-                      setSelected((prev) =>
-                        prev.includes(idx)
-                          ? prev.filter((i) => i !== idx)
-                          : [...prev, idx]
-                      );
-                    } else {
-                      setSelected((prev) =>
-                        prev.includes(idx) ? prev : [...prev, idx]
-                      );
-                    }
+                    setSelected((prev) =>
+                      prev.includes(idx)
+                        ? prev.filter((i) => i !== idx)
+                        : [...prev, idx]
+                    );
                   }}
                   className={
                     selected.includes(idx) ? "option selected" : "option"
@@ -184,20 +190,32 @@ function CipherQuest() {
             </ul>
           )}
 
-          {!showFeedback ? (
-            <button className="submit-btn" onClick={handleSubmit}>
-              Submit
-            </button>
+          {!isCorrect ? (
+            <>
+              <button className="submit-btn" onClick={handleSubmit}>
+                Submit
+              </button>
+              <button className="submit-btn" onClick={handleHint}>
+                Hint
+              </button>
+              {showHint && (
+                <p className="hint">{current.feedback}</p>
+              )}
+              {submitClicked && (
+                <p className="hint incorrect">
+                  ❌ Incorrect
+                </p>
+              )}
+            </>
           ) : (
             <>
               <p
-                className={
-                  isCorrect ? "feedback correct" : "feedback incorrect"
-                }
-              >
-                {isCorrect ? "✅ Correct!" : "❌ Not quite."}
+                className="hint correct">
+                ✅ Correct!
               </p>
-              <p className="explanation">💡 {current.feedback}</p>
+              <button className="next-btn" onClick={handleReplay}>
+                Replay Level
+              </button>
               <button className="next-btn" onClick={handleNext}>
                 {currentLevel === levels.length - 1
                   ? "Finish Game"
