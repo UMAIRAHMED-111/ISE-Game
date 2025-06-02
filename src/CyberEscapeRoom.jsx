@@ -11,12 +11,10 @@ function CyberEscapeRoom() {
   const [isNewQuestion, setIsNewQuestion] = useState(false);
   const [editForm, setEditForm] = useState({
     question: '',
-    options: [],
+    options: [{ id: 'A', text: '' }, { id: 'B', text: '' }, { id: 'C', text: '' }, { id: 'D', text: '' }],
     correctAnswer: '',
-    explanation: '',
-    securityTip: '',
-    difficulty: 'easy',
-    points: 10
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   });
 
   useEffect(() => {
@@ -46,17 +44,10 @@ function CyberEscapeRoom() {
     setEditingQuestion('new');
     setEditForm({
       question: '',
-      options: [
-        { id: "A", text: "" },
-        { id: "B", text: "" },
-        { id: "C", text: "" },
-        { id: "D", text: "" }
-      ],
+      options: [{ id: 'A', text: '' }, { id: 'B', text: '' }, { id: 'C', text: '' }, { id: 'D', text: '' }],
       correctAnswer: '',
-      explanation: '',
-      securityTip: '',
-      difficulty: 'easy',
-      points: 10
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     });
   };
 
@@ -64,29 +55,36 @@ function CyberEscapeRoom() {
     setIsNewQuestion(false);
     setEditingQuestion(question.id);
     setEditForm({
-      question: question.question,
-      options: question.options,
-      correctAnswer: question.correctAnswer,
-      explanation: question.explanation,
-      securityTip: question.securityTip,
-      difficulty: question.difficulty || 'easy',
-      points: question.points || 10
+      question: question.question || '',
+      options: question.options || [{ id: 'A', text: '' }, { id: 'B', text: '' }, { id: 'C', text: '' }, { id: 'D', text: '' }],
+      correctAnswer: question.correctAnswer || '',
+      createdAt: question.createdAt || new Date().toISOString(),
+      updatedAt: question.updatedAt || new Date().toISOString()
     });
   };
 
   const handleUpdate = async (questionId) => {
     try {
+      console.log('Original editForm:', editForm);
+      
       const updatedData = {
         ...editForm,
         updatedAt: new Date().toISOString()
       };
 
       if (isNewQuestion) {
+        // Add new question
         updatedData.createdAt = new Date().toISOString();
-        await addDoc(collection(db, 'escapeRoomQuestions'), updatedData);
+        const questionsRef = collection(db, 'escapeRoomQuestions');
+        console.log('Attempting to add new question with data:', updatedData);
+        const docRef = await addDoc(questionsRef, updatedData);
+        console.log('New question added with ID:', docRef.id);
       } else {
+        // Update existing question
         const questionRef = doc(db, 'escapeRoomQuestions', questionId);
+        console.log('Attempting to update question', questionId, 'with data:', updatedData);
         await updateDoc(questionRef, updatedData);
+        console.log('Question updated successfully');
       }
       
       setEditingQuestion(null);
@@ -94,6 +92,11 @@ function CyberEscapeRoom() {
       fetchQuestions();
     } catch (err) {
       console.error('Error saving question:', err);
+      console.error('Error details:', {
+        message: err.message,
+        code: err.code,
+        stack: err.stack
+      });
       setError('Failed to save question. Please try again.');
     }
   };
@@ -113,8 +116,8 @@ function CyberEscapeRoom() {
 
   const handleOptionChange = (index, value) => {
     const newOptions = [...editForm.options];
-    newOptions[index] = { ...newOptions[index], text: value };
-    setEditForm({ ...editForm, options: newOptions });
+    newOptions[index].text = value;
+    setEditForm({...editForm, options: newOptions});
   };
 
   if (loading) {
@@ -164,12 +167,11 @@ function CyberEscapeRoom() {
               </button>
             </div>
             <div className="edit-form">
-              <input
-                type="text"
+              <textarea
                 value={editForm.question}
                 onChange={(e) => setEditForm({...editForm, question: e.target.value})}
                 placeholder="Question"
-                className="edit-input"
+                className="edit-textarea"
               />
               {editForm.options.map((option, index) => (
                 <input
@@ -186,39 +188,13 @@ function CyberEscapeRoom() {
                 onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
                 className="edit-select"
               >
-                <option value="">Select Correct Answer</option>
+                <option value="">Select correct answer</option>
                 {editForm.options.map(option => (
-                  <option key={option.id} value={option.id}>{option.id}</option>
+                  <option key={option.id} value={option.id}>
+                    {option.id}
+                  </option>
                 ))}
               </select>
-              <textarea
-                value={editForm.explanation}
-                onChange={(e) => setEditForm({...editForm, explanation: e.target.value})}
-                placeholder="Explanation"
-                className="edit-textarea"
-              />
-              <textarea
-                value={editForm.securityTip}
-                onChange={(e) => setEditForm({...editForm, securityTip: e.target.value})}
-                placeholder="Security Tip"
-                className="edit-textarea"
-              />
-              <select
-                value={editForm.difficulty}
-                onChange={(e) => setEditForm({...editForm, difficulty: e.target.value})}
-                className="edit-select"
-              >
-                <option value="easy">Easy</option>
-                <option value="medium">Medium</option>
-                <option value="hard">Hard</option>
-              </select>
-              <input
-                type="number"
-                value={editForm.points}
-                onChange={(e) => setEditForm({...editForm, points: parseInt(e.target.value)})}
-                placeholder="Points"
-                className="edit-input"
-              />
               <div className="edit-actions">
                 <button 
                   className="save-btn"
@@ -228,6 +204,12 @@ function CyberEscapeRoom() {
                 </button>
               </div>
             </div>
+          </div>
+        )}
+
+        {questions.length === 0 && !editingQuestion && (
+          <div className="empty-state">
+            <p>No questions yet. Click "New Question" to create one!</p>
           </div>
         )}
 
@@ -253,12 +235,11 @@ function CyberEscapeRoom() {
 
             {editingQuestion === question.id ? (
               <div className="edit-form">
-                <input
-                  type="text"
+                <textarea
                   value={editForm.question}
                   onChange={(e) => setEditForm({...editForm, question: e.target.value})}
                   placeholder="Question"
-                  className="edit-input"
+                  className="edit-textarea"
                 />
                 {editForm.options.map((option, index) => (
                   <input
@@ -275,39 +256,13 @@ function CyberEscapeRoom() {
                   onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value})}
                   className="edit-select"
                 >
-                  <option value="">Select Correct Answer</option>
+                  <option value="">Select correct answer</option>
                   {editForm.options.map(option => (
-                    <option key={option.id} value={option.id}>{option.id}</option>
+                    <option key={option.id} value={option.id}>
+                      {option.id}
+                    </option>
                   ))}
                 </select>
-                <textarea
-                  value={editForm.explanation}
-                  onChange={(e) => setEditForm({...editForm, explanation: e.target.value})}
-                  placeholder="Explanation"
-                  className="edit-textarea"
-                />
-                <textarea
-                  value={editForm.securityTip}
-                  onChange={(e) => setEditForm({...editForm, securityTip: e.target.value})}
-                  placeholder="Security Tip"
-                  className="edit-textarea"
-                />
-                <select
-                  value={editForm.difficulty}
-                  onChange={(e) => setEditForm({...editForm, difficulty: e.target.value})}
-                  className="edit-select"
-                >
-                  <option value="easy">Easy</option>
-                  <option value="medium">Medium</option>
-                  <option value="hard">Hard</option>
-                </select>
-                <input
-                  type="number"
-                  value={editForm.points}
-                  onChange={(e) => setEditForm({...editForm, points: parseInt(e.target.value)})}
-                  placeholder="Points"
-                  className="edit-input"
-                />
                 <div className="edit-actions">
                   <button 
                     className="save-btn"
@@ -325,23 +280,15 @@ function CyberEscapeRoom() {
               </div>
             ) : (
               <div className="question-content">
-                <div className="options-preview">
-                  {question.options.map((option) => (
-                    <div key={option.id} className="option-preview">
-                      <span className="option-label">{option.id}</span>
-                      <span className="option-text">{option.text}</span>
-                      {option.id === question.correctAnswer && (
-                        <span className="correct-badge">Correct</span>
-                      )}
-                    </div>
+                <p className="question">{question.question}</p>
+                <ul className="options-preview">
+                  {question.options?.map((option) => (
+                    <li key={option.id} className={option.id === question.correctAnswer ? 'correct' : ''}>
+                      {option.text}
+                      {option.id === question.correctAnswer && <span className="correct-badge">Correct</span>}
+                    </li>
                   ))}
-                </div>
-                <div className="question-details">
-                  <p><strong>Difficulty:</strong> {question.difficulty}</p>
-                  <p><strong>Points:</strong> {question.points}</p>
-                  <p><strong>Explanation:</strong> {question.explanation}</p>
-                  <p><strong>Security Tip:</strong> {question.securityTip}</p>
-                </div>
+                </ul>
               </div>
             )}
           </div>
