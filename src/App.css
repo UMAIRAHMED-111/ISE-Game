@@ -98,6 +98,7 @@ body {
 
 /* Ensure content below navbar is not overlapped */
 .app > :not(.navbar) {
+  margin-top: 80px;
 }
 
 /* Responsive Design */

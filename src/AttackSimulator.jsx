@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // Import Link for navigation
 import './AttackSimulator.css';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from './firebase/config';
 
 const scenarios = [
   {
@@ -66,7 +68,7 @@ const scenarios = [
     description: 'A pop-up on your screen claims your software is outdated and prompts you to download an update.',
     options: ['Download and install the update', 'Ignore the pop-up', 'Verify the source of the update', 'Restart your computer'],
     correctOption: 'Verify the source of the update',
-    explanation: 'It’s important to verify the source of the update to avoid downloading fake or malicious software.',
+    explanation: "It's important to verify the source of the update to avoid downloading fake or malicious software.",
   },
   {
     id: 9,
@@ -104,14 +106,14 @@ const scenarios = [
     id: 13,
     attackType: 'Imposter Email',
     description: 'You receive an email claiming to be from your CEO asking for sensitive information.',
-    options: ['Reply with the information', 'Verify the sender’s identity', 'Delete the email', 'Forward it to your colleagues'],
-    correctOption: 'Verify the sender’s identity',
+    options: ['Reply with the information', "Verify the sender's identity", 'Delete the email', 'Forward it to your colleagues'],
+    correctOption: "Verify the sender's identity",
     explanation: 'Always verify the identity of the sender before sharing sensitive information, especially in suspicious emails.',
   },
   {
     id: 14,
     attackType: 'Locked Account',
-    description: 'You’re locked out of your account after multiple failed login attempts.',
+    description: "You're locked out of your account after multiple failed login attempts.",
     options: ['Request a password reset', 'Contact IT support', 'Try all possible passwords', 'Create a new account'],
     correctOption: 'Contact IT support',
     explanation: 'IT support can help securely restore access to your account and investigate the cause of the lockout.',
@@ -172,6 +174,26 @@ const AttackSimulator = () => {
     setScore(0);
     setIncorrectAnswers([]);
     setFeedback('');
+  };
+
+  const fetchScenarios = async () => {
+    try {
+      const scenariosRef = collection(db, 'attackScenarios');
+      const snapshot = await getDocs(scenariosRef);
+      const scenariosData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      // Sort scenarios by difficulty (easy -> medium -> hard)
+      const sortedScenarios = scenariosData.sort((a, b) => {
+        const difficultyOrder = { easy: 1, medium: 2, hard: 3 };
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      });
+      setScenariosList(sortedScenarios);
+    } catch (err) {
+      console.error('Error fetching scenarios:', err);
+      setFeedback('Failed to load scenarios. Please try again later.');
+    }
   };
 
   return (

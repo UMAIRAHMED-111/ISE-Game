@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Confetti from "react-confetti";
 import "./CipherQuest.css";
-import { getCipherQuestLevels, initializeCipherQuestLevels } from './firebase/cipherQuest';
+import { db } from './firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
 function CipherQuest() {
   const [levels, setLevels] = useState([]);
@@ -16,23 +17,25 @@ function CipherQuest() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const loadLevels = async () => {
+    const fetchLevels = async () => {
       try {
-        // Initialize levels if they don't exist
-        await initializeCipherQuestLevels();
-        
-        // Fetch levels
-        const fetchedLevels = await getCipherQuestLevels();
-        setLevels(fetchedLevels);
+        const levelsRef = collection(db, 'cipherQuestLevels');
+        const snapshot = await getDocs(levelsRef);
+        const levelsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        const sortedLevels = levelsData.sort((a, b) => a.level - b.level);
+        setLevels(sortedLevels);
       } catch (err) {
-        console.error('Error loading levels:', err);
+        console.error('Error fetching levels:', err);
         setError('Failed to load levels. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    loadLevels();
+    fetchLevels();
   }, []);
 
   if (loading) {
