@@ -6,6 +6,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body {
@@ -16,7 +17,7 @@ body {
 
 .app {
   min-height: 100vh;
-  padding: 20px;
+  padding: 0px;
   position: relative;
 }
 
@@ -97,7 +98,6 @@ body {
 
 /* Ensure content below navbar is not overlapped */
 .app > :not(.navbar) {
-  margin-top: 80px;
 }
 
 /* Responsive Design */

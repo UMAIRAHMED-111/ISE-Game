@@ -1,0 +1,227 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg-primary: #0c0c0c;
+  --bg-secondary: #1a1a1a;
+  --accent-primary: #00f5d4;
+  --accent-secondary: #00e0c0;
+  --accent-glow: rgba(0, 245, 212, 0.2);
+  --text-primary: #eaeaea;
+  --text-secondary: #b0b0b0;
+  --text-headings: #ffffff;
+  --card-bg: rgba(26, 26, 26, 0.6);
+  --card-border: rgba(0, 245, 212, 0.15);
+}
+
+* {
+  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.login-page {
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 20px;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.login-content {
+  display: flex;
+  width: 100%;
+  height: calc(100vh);
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.description-section {
+  flex: 1;
+  padding: 40px;
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  color: var(--text-primary);
+  border-right: 1px solid var(--card-border);
+}
+
+.description-section h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--text-headings);
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  margin-bottom: 3rem;
+  color: var(--text-secondary);
+}
+
+.features {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.feature-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.feature-icon {
+  font-size: 2rem;
+  background: rgba(0, 245, 212, 0.05);
+  padding: 0.5rem;
+  border-radius: 8px;
+  color: var(--accent-primary);
+  border: 1px solid var(--card-border);
+}
+
+.feature-text h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-headings);
+}
+
+.feature-text p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.form-section {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+}
+
+.form-toggle {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.toggle-btn {
+  background: transparent;
+  color: var(--accent-primary);
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-btn:hover {
+  background: rgba(0, 245, 212, 0.05);
+  border-color: var(--accent-primary);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-group input {
+  padding: 0.75rem;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.submit-button {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  padding: 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-button:hover {
+  background: var(--accent-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.error-message {
+  background: rgba(255, 0, 0, 0.1);
+  color: #ff4444;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.login-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  color: #666;
+}
+
+.login-footer a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .login-content {
+    flex-direction: column;
+  }
+  
+  .description-section {
+    padding: 30px;
+  }
+  
+  .form-section {
+    padding: 30px;
+  }
+  
+  .feature-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+} 

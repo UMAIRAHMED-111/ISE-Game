@@ -67,7 +67,7 @@ function Home() {
   return (
     <div className="home">
       <div className="hero">
-        <div className="hero-content">
+        <div className="hero-content" style={{ marginTop: "80px" }}>
           {" "}
           {/* Wrapper for z-index with pseudo-elements */}
           <h1>Cybersecurity Awareness Platform</h1>

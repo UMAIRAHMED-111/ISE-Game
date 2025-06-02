@@ -9,28 +9,31 @@ import PasswordChallenge from "./PasswordChallenge";
 import AttackSimulator from "./AttackSimulator";
 import HackTheHacker from "./HackTheHacker";
 import HackTheHackerComplete from "./HackTheHackerComplete";
-import LoginModal from "./LoginModal";
+import LoginPage from "./LoginPage";
 import SignUpModal from "./SignUpModal";
+import ProtectedRoute from "./ProtectedRoute";
 import HackAware from "./assets/HackAware.png";
 import CipherQuest from "./CipherQuest";
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
   const [showSignUpForm, setShowSignUpForm] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
-  // Handle the fake login submission.
-  const handleLoginSubmit = (e) => {
-    e.preventDefault();
-    setShowLoginForm(false);
-    setAlertMessage(
-      "Important! This is a simulated scenario to raise awareness:\n\nYour credentials are 'compromised' in this demonstration. Never trust a website without proper verification. Always check the URL, SSL certificate, and overall authenticity before sharing personal details. Protect your data to avoid identity theft, financial loss, and other risks."
-    );
+  const handleLogin = (userData) => {
+    setIsAuthenticated(true);
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
   };
 
   // Handle the fake sign-up submission.
@@ -45,52 +48,37 @@ function App() {
   return (
     <Router>
       <div className="app">
-        <nav className="navbar">
-          <Link to="/" className="nav-logo">
-            <img
-              src={HackAware}
-              alt="HackAware Logo"
-              style={{ height: "40px", verticalAlign: "middle" }}
-            />
-          </Link>
-          <button className="hamburger" onClick={toggleMenu}>
-            <span className="bar"></span>
-            <span className="bar"></span>
-            <span className="bar"></span>
-          </button>
-          <ul className={`nav-links ${isMenuOpen ? "active" : ""}`}>
-            <li>
-              <Link to="/" onClick={toggleMenu}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/challenges" onClick={toggleMenu}>
-                Challenges
-              </Link>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setShowLoginForm(true);
-                  setIsMenuOpen(false);
-                }}
-              >
-                Login
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setShowSignUpForm(true);
-                  setIsMenuOpen(false);
-                }}
-              >
-                Sign Up
-              </button>
-            </li>
-          </ul>
-        </nav>
+        {isAuthenticated && (
+          <nav className="navbar">
+            <Link to="/" className="nav-logo">
+              <img
+                src={HackAware}
+                alt="HackAware Logo"
+                style={{ height: "40px", verticalAlign: "middle" }}
+              />
+            </Link>
+            <button className="hamburger" onClick={toggleMenu}>
+              <span className="bar"></span>
+              <span className="bar"></span>
+              <span className="bar"></span>
+            </button>
+            <ul className={`nav-links ${isMenuOpen ? "active" : ""}`}>
+              <li>
+                <Link to="/" onClick={toggleMenu}>
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link to="/challenges" onClick={toggleMenu}>
+                  Challenges
+                </Link>
+              </li>
+              <li>
+                <button onClick={handleLogout}>Logout</button>
+              </li>
+            </ul>
+          </nav>
+        )}
 
         {/* Alert message for the fake data leak */}
         {alertMessage && (
@@ -105,14 +93,6 @@ function App() {
           </div>
         )}
 
-        {/* Render the Login Modal */}
-        {showLoginForm && (
-          <LoginModal
-            onClose={() => setShowLoginForm(false)}
-            onSubmit={handleLoginSubmit}
-          />
-        )}
-
         {/* Render the Sign Up Modal */}
         {showSignUpForm && (
           <SignUpModal
@@ -122,20 +102,79 @@ function App() {
         )}
 
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/challenges" element={<Challenges />} />
-          <Route path="/games/cipher-quest" element={<CipherQuest />} />
-          <Route path="/games/security-quiz" element={<SecurityQuiz />} />
-          <Route path="/games/escape-room" element={<CyberEscapeRoom />} />
+          <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+          
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/challenges"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <Challenges />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/games/cipher-quest"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <CipherQuest />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/games/security-quiz"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <SecurityQuiz />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/games/escape-room"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <CyberEscapeRoom />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/games/password-challenge"
-            element={<PasswordChallenge />}
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <PasswordChallenge />
+              </ProtectedRoute>
+            }
           />
-          <Route path="/games/attack-sim" element={<AttackSimulator />} />
-          <Route path="/games/hack-hacker" element={<HackTheHacker />} />
+          <Route
+            path="/games/attack-sim"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <AttackSimulator />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/games/hack-hacker"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <HackTheHacker />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/games/hack-hacker/complete"
-            element={<HackTheHackerComplete />}
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <HackTheHackerComplete />
+              </ProtectedRoute>
+            }
           />
         </Routes>
       </div>
