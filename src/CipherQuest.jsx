@@ -11,16 +11,16 @@ const levels = [
     question: "Decode the note:",
     type: "input",
     correctAnswer: "CASE",
-    feedback:
-      "The Caesar cipher shifts letters. Shifting F-D-V-H back by 3 gives C-A-S-E.",
+    hint:
+      "Shift the letters back by 3 positions in the alphabet.",
   },
   {
     level: 2,
     title: "One-Time Pad Fix",
     scenario:
-      "Alice and Bob are reusing one-time pad keys across messages. Select steps to fix this.",
-    question: "Select all correct steps in order:",
-    type: "multi-choice",
+      "Alice and Bob are using a one-time pad to communicate securely. However, due to limited key material, they begin reusing keys across multiple messages.",
+    question: "Select the correct step(s) in the correct order:",
+    type: "ordered-choice",
     options: [
       "Use each key only once and discard it after use.",
       "Switch to a Caesar cipher with a fixed shift.",
@@ -29,26 +29,26 @@ const levels = [
       "Switch to symmetric encryption with a secure key exchange mechanism.",
     ],
     correctAnswer: [0, 4],
-    feedback:
-      "Correct! Step 1 ensures uniqueness, Step 5 provides a scalable fix.",
+    hint:
+      "Reusing keys violates the core principle of a one-time pad. Think about what ensures perfect secrecy — and what modern methods can safely replace one-time pads in practice.",
   },
   {
     level: 3,
     title: "Digital Signature Check",
     scenario:
-      'Bob receives an email from "Alice" asking for data. Validate the signature with these steps.',
-    question: "Arrange steps in correct order:",
+      'Bob receives an email from Alice asking for data. How can he verify the authenticity using digital signatures?',
+    question: "Select the correct step(s) in the correct order:",
     type: "ordered-choice",
     options: [
-      "Use Alice’s public key to decrypt the signed hash",
       "Hash the message using the agreed-upon algorithm",
-      "Compare the hash from signature with the hash of the message",
       "Encrypt the message using Bob’s private key",
+      "Compare the hash from signature with the hash of the message",
+      "Use Alice’s public key to decrypt the signed hash",
       "Replace the hash algorithm with MD5 instead",
     ],
-    correctAnswer: [0, 1, 2],
-    feedback:
-      "Correct! These are the steps to verify digital signatures. The rest are either irrelevant or insecure.",
+    correctAnswer: [3, 0, 2],
+    hint:
+      "To verify a signed message, you must check the origin and the integrity. Start by confirming who signed it and whether the content was altered.",
   },
   {
     level: 4,
@@ -56,7 +56,7 @@ const levels = [
     scenario:
       "Customer data was encrypted using AES, but keys were left in plaintext.",
     question: "Pick correct steps to improve key handling:",
-    type: "multi-choice",
+    type: "ordered-choice",
     options: [
       "Move encryption keys to a secure hardware module (HSM).",
       "Encrypt the encryption key using Base64 encoding.",
@@ -65,7 +65,7 @@ const levels = [
       "Store the keys in a hidden folder on the same server.",
     ],
     correctAnswer: [0, 2, 3],
-    feedback:
+    hint:
       "Storing keys securely, limiting access, and rotating keys strengthens protection.",
   },
   {
@@ -74,7 +74,7 @@ const levels = [
     scenario:
       "Same plaintext sent with RSA (e=3) to 3 recipients. An attacker decrypts.",
     question: "Pick all correct steps to fix this vulnerability:",
-    type: "multi-choice",
+    type: "ordered-choice",
     options: [
       "Use message padding (e.g., OAEP) before encryption.",
       "Decrease the public exponent to 1.",
@@ -83,7 +83,7 @@ const levels = [
       "Switch to AES for broadcast messaging.",
     ],
     correctAnswer: [0, 3, 4],
-    feedback:
+    hint:
       "Padding, randomness, and symmetric encryption prevent this RSA flaw.",
   },
 ];
@@ -92,34 +92,49 @@ function CipherQuest() {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [selected, setSelected] = useState([]);
   const [inputAnswer, setInputAnswer] = useState("");
-  const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setshowHint] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
+  const [submitClicked, setSubmitClicked] = useState(false);
 
   const current = levels[currentLevel];
 
   const handleSubmit = () => {
+    setshowHint(false);
+    setSubmitClicked(true);
     let correct = false;
 
     if (current.type === "input") {
       correct = inputAnswer.trim().toUpperCase() === current.correctAnswer;
-    } else if (current.type === "multi-choice") {
-      correct =
-        JSON.stringify(selected.sort()) ===
-        JSON.stringify(current.correctAnswer.sort());
-    } else if (current.type === "ordered-choice") {
-      correct =
-        JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
-    }
+    // } else if (current.type === "multi-choice") {
+    //   correct =
+    //     JSON.stringify(selected.sort()) ===
+    //     JSON.stringify(current.correctAnswer.sort());
+    } else correct = JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
 
     setIsCorrect(correct);
     if (correct) setCorrectCount((prev) => prev + 1);
-    setShowFeedback(true);
   };
 
+  const handleHint = () => {
+    setshowHint(true);
+    setSubmitClicked(false);
+    setIsCorrect(false);
+  }
+
+  const handleReplay = () => {
+    setSubmitClicked(false);
+    setshowHint(false);
+    setSelected([]);
+    setInputAnswer("");
+    setIsCorrect(false);
+  }
+
   const handleNext = () => {
-    setShowFeedback(false);
+    setIsCorrect(false);
+    setSubmitClicked(false);
+    setshowHint(false);
     setSelected([]);
     setInputAnswer("");
 
@@ -131,10 +146,11 @@ function CipherQuest() {
   };
 
   const restart = () => {
+    setSubmitClicked(false);
     setCurrentLevel(0);
     setSelected([]);
     setInputAnswer("");
-    setShowFeedback(false);
+    setshowHint(false);
     setShowSummary(false);
     setCorrectCount(0);
   };
@@ -149,7 +165,7 @@ function CipherQuest() {
             <p className="summary-score">
               You scored {correctCount} / {levels.length}
             </p>
-            <p className="emoji-feedback">
+            <p className="emoji-hint">
               {correctCount === levels.length
                 ? "🎯🧠🔐 You're a true cyber defender!"
                 : correctCount >= 3
@@ -181,24 +197,17 @@ function CipherQuest() {
             />
           )}
 
-          {(current.type === "multi-choice" ||
-            current.type === "ordered-choice") && (
+          {current.type === "ordered-choice" && (
             <ul className="options">
               {current.options.map((opt, idx) => (
                 <li
                   key={idx}
                   onClick={() => {
-                    if (current.type === "multi-choice") {
-                      setSelected((prev) =>
-                        prev.includes(idx)
-                          ? prev.filter((i) => i !== idx)
-                          : [...prev, idx]
-                      );
-                    } else {
-                      setSelected((prev) =>
-                        prev.includes(idx) ? prev : [...prev, idx]
-                      );
-                    }
+                    setSelected((prev) =>
+                      prev.includes(idx)
+                        ? prev.filter((i) => i !== idx)
+                        : [...prev, idx]
+                    );
                   }}
                   className={
                     selected.includes(idx) ? "option selected" : "option"
@@ -210,20 +219,32 @@ function CipherQuest() {
             </ul>
           )}
 
-          {!showFeedback ? (
-            <button className="submit-btn" onClick={handleSubmit}>
-              Submit
-            </button>
+          {!isCorrect ? (
+            <>
+              <button className="submit-btn" onClick={handleSubmit}>
+                Submit
+              </button>
+              <button className="submit-btn" onClick={handleHint}>
+                Hint
+              </button>
+              {showHint && (
+                <p className="hint">{current.hint}</p>
+              )}
+              {submitClicked && (
+                <p className="hint incorrect">
+                  ❌ Incorrect
+                </p>
+              )}
+            </>
           ) : (
             <>
               <p
-                className={
-                  isCorrect ? "feedback correct" : "feedback incorrect"
-                }
-              >
-                {isCorrect ? "✅ Correct!" : "❌ Not quite."}
+                className="hint correct">
+                ✅ Correct!
               </p>
-              <p className="explanation">💡 {current.feedback}</p>
+              <button className="next-btn" onClick={handleReplay}>
+                Replay Level
+              </button>
               <button className="next-btn" onClick={handleNext}>
                 {currentLevel === levels.length - 1
                   ? "Finish Game"
