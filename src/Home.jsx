@@ -35,7 +35,8 @@ function Home() {
         const challengesRef = collection(db, 'challenges');
         const snapshot = await getDocs(challengesRef);
         
-        const challengesData = snapshot.docs.map(doc => {
+        const challengesData = snapshot.docs
+        .map(doc => {
           const data = doc.data();
           return {
             id: doc.id,
@@ -46,7 +47,8 @@ function Home() {
             label: data.isNew ? "NEW" : null,
             icon: challengeIcons[data.path] || <FaBookOpen className="challenge-icon" />
           };
-        });
+        })
+        .filter(challenge => challenge.path === "/games/cipher-quest");
 
         console.log('✅ Fetched challenges:', challengesData);
         setChallenges(challengesData);
@@ -63,11 +65,9 @@ function Home() {
 
   if (loading) {
     return (
-      <div className="home">
         <div className="loading-container">
           <div className="loading-spinner"></div>
-          <p>Loading challenges...</p>
-        </div>
+          <p>Loading challenge...</p>
       </div>
     );
   }
@@ -89,9 +89,9 @@ function Home() {
         <div className="hero-content" style={{ }}>
           {" "}
           {/* Wrapper for z-index with pseudo-elements */}
-          <h1>Admin Panel</h1>
+          <h1>Welcome to HackAware</h1>
           <p>
-          Manage and update quiz questions shown to users.
+          Refine information security skills through engaging challenges and games.
           </p>
         </div>
       </div>

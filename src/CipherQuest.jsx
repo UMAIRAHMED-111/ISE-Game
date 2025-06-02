@@ -16,7 +16,7 @@ function CipherQuest() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitClicked, setSubmitClicked] = useState(false);
-
+  const [answeredCorrectly, setAnsweredCorrectly] = useState({});
 
   useEffect(() => {
     const fetchLevels = async () => {
@@ -42,11 +42,9 @@ function CipherQuest() {
 
   if (loading) {
     return (
-      <div className="cipher-quest-container">
         <div className="loading-container">
           <div className="loading-spinner"></div>
           <p>Loading levels...</p>
-        </div>
       </div>
     );
   }
@@ -85,7 +83,13 @@ function CipherQuest() {
     } else correct = JSON.stringify(selected) === JSON.stringify(current.correctAnswer);
 
     setIsCorrect(correct);
-    if (correct) setCorrectCount((prev) => prev + 1);
+    if (correct && !answeredCorrectly[currentLevel]) {
+      setCorrectCount((prev) => prev + 1);
+      setAnsweredCorrectly((prev) => ({
+        ...prev,
+        [currentLevel]: true
+      }));
+    }
   };
 
   const handleHint = () => {
@@ -124,6 +128,7 @@ function CipherQuest() {
     setshowHint(false);
     setShowSummary(false);
     setCorrectCount(0);
+    setAnsweredCorrectly({});
   };
 
   return (
@@ -190,7 +195,7 @@ function CipherQuest() {
             </ul>
           )}
 
-          {!isCorrect ? (
+          {!isCorrect && (
             <>
               <button className="submit-btn" onClick={handleSubmit}>
                 Submit
@@ -207,22 +212,29 @@ function CipherQuest() {
                 </p>
               )}
             </>
-          ) : (
-            <>
-              <p
-                className="hint correct">
-                ✅ Correct!
-              </p>
-              <button className="next-btn" onClick={handleReplay}>
-                Replay Level
-              </button>
-              <button className="next-btn" onClick={handleNext}>
-                {currentLevel === levels.length - 1
-                  ? "Finish Game"
-                  : "Next Level"}
-              </button>
-            </>
           )}
+          {isCorrect && <p className="hint correct">✅ Correct!</p>}
+          <div className="navigation-buttons">
+            <button
+              className="next-btn"
+              onClick={() => setCurrentLevel((prev) => Math.max(prev - 1, 0))}
+              disabled={currentLevel === 0}
+            >
+              Previous
+            </button>
+            <button
+              className="next-btn"
+              onClick={handleReplay}
+            >
+              Replay Level
+            </button>
+            <button
+              className="next-btn"
+              onClick={handleNext}
+            >
+              {currentLevel === levels.length - 1 ? "Finish Game" : "Next Level"}
+            </button>
+          </div>
         </div>
       )}
     </div>
