@@ -14,13 +14,14 @@ function CipherQuest() {
     scenario: '',
     question: '',
     type: 'ordered-choice',
-    correctAnswer: [],
+    correctAnswer: '',
     feedback: '',
     options: [],
     level: 0,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   });
+  const [correctAnswerInput, setCorrectAnswerInput] = useState('');
 
   useEffect(() => {
     fetchLevels();
@@ -69,14 +70,22 @@ function CipherQuest() {
       scenario: level.scenario,
       question: level.question,
       type: level.type,
-      correctAnswer: level.correctAnswer,
+      correctAnswer: level.correctAnswer, // raw value, not used directly
       feedback: level.feedback,
       options: level.options,
       level: level.level,
       createdAt: level.createdAt,
       updatedAt: level.updatedAt
     });
+
+    // Set correctAnswerInput based on the type
+    if (level.type === 'ordered-choice') {
+      setCorrectAnswerInput(Array.isArray(level.correctAnswer) ? level.correctAnswer.join(',') : '');
+    } else {
+      setCorrectAnswerInput(String(level.correctAnswer ?? ''));
+    }
   };
+
 
   const handleUpdate = async (levelId) => {
     try {
@@ -84,6 +93,13 @@ function CipherQuest() {
       
       const updatedData = {
         ...editForm,
+        correctAnswer:
+          editForm.type === 'ordered-choice'
+            ? correctAnswerInput
+                .split(',')
+                .map(str => Number(str.trim()))
+                .filter(num => !isNaN(num))
+            : correctAnswerInput.trim(), // store single string/number for input type
         updatedAt: new Date().toISOString()
       };
 
@@ -102,7 +118,7 @@ function CipherQuest() {
         await updateDoc(levelRef, updatedData);
         console.log('Level updated successfully');
       }
-      
+      setCorrectAnswerInput('');
       setEditingLevel(null);
       setIsNewLevel(false);
       fetchLevels();
@@ -213,8 +229,8 @@ function CipherQuest() {
               />
               <input
                 type="text"
-                value={editForm.correctAnswer.join(',')}
-                onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value.split(',').map(num => parseInt(num.trim()))})}
+                value={correctAnswerInput}
+                onChange={(e) => setCorrectAnswerInput(e.target.value)}
                 placeholder="Correct Answer (comma-separated numbers)"
                 className="edit-input"
               />
@@ -294,8 +310,8 @@ function CipherQuest() {
                 />
                 <input
                   type="text"
-                  value={editForm.correctAnswer.join(',')}
-                  onChange={(e) => setEditForm({...editForm, correctAnswer: e.target.value.split(',').map(num => parseInt(num.trim()))})}
+                  value={correctAnswerInput}
+                  onChange={(e) => setCorrectAnswerInput(e.target.value)}
                   placeholder="Correct Answer (comma-separated numbers)"
                   className="edit-input"
                 />
